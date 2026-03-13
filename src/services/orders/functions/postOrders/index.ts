@@ -1,6 +1,6 @@
 const lambda = {
   handler: 'functions/postOrders/handler.postOrders',
-  description: 'Create a new order',
+  description: 'Create a number of orders',
   events: [
     { 
       http: { 

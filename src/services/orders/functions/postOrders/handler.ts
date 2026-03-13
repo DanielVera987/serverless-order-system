@@ -1,5 +1,13 @@
-import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import 'reflect-metadata';
+import types from './types';
+import container from './inversify';
+import { ControllerBase } from '../../../../context/shared/infrastructure/controller/ControllerBase';
+import { Controllers, ApiGatewayHandler } from '../../../../context/shared/infrastructure/controller/ControllerBase';
 
-export async function postOrders(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-  return { statusCode: 200, body: JSON.stringify({ data: JSON.parse(event.body || '{}') }) };
-}
+// Register controllers by event type
+const controllers: Controllers = {
+  api: container.get<ApiGatewayHandler>(types.ApiGatewayController),
+};
+
+const controller = new ControllerBase(controllers as Controllers);
+export const postOrders = (event: unknown) => controller.execute(event);
