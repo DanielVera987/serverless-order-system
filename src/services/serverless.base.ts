@@ -9,6 +9,43 @@ export const baseConfig: DeepPartial<AWS> = {
     runtime: 'nodejs20.x',
     region: 'us-east-1',
     stage: '${opt:stage, "dev"}',
+    // TODO: enhance this
+    iam: {
+      role: {
+        statements: [
+          {
+            Effect: 'Allow',
+            Action: 'dynamodb:PutItem',
+            Resource: '*',
+          },
+          {
+            Effect: 'Allow',
+            Action: 'dynamodb:GetItem',
+            Resource: '*',
+          },
+          {
+            Effect: 'Allow',
+            Action: 'dynamodb:UpdateItem',
+            Resource: '*',
+          },
+          {
+            Effect: 'Allow',
+            Action: 'dynamodb:DeleteItem',
+            Resource: '*',
+          },
+          {
+            Effect: 'Allow',
+            Action: 'dynamodb:Scan',
+            Resource: '*',
+          },
+          {
+            Effect: 'Allow',
+            Action: 'dynamodb:Query',
+            Resource: '*',
+          },
+        ],
+      },
+    },
   },
   plugins: [
     'serverless-esbuild',
