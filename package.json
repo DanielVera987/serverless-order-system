@@ -19,6 +19,7 @@
     "@serverless/typescript": "^4.30.0",
     "@types/aws-lambda": "^8.10.0",
     "@types/node": "^20.0.0",
+    "@types/uuid": "^10.0.0",
     "esbuild": "^0.21.0",
     "serverless": "^3.39.0",
     "serverless-esbuild": "^1.52.0",
