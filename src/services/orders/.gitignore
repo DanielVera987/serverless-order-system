@@ -1,0 +1,4 @@
+/.serverless
+/.esbuild
+/node_modules
+.env

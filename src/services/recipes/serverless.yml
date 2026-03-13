@@ -1,4 +1,4 @@
-service: restaurant-api
+service: restaurant-recipes
 
 frameworkVersion: '3'
 
@@ -21,11 +21,10 @@ custom:
     platform: node
 
 functions:
-  createOrder:
-    handler: src/handler.createOrder
+  getRecipes:
+    handler: handler.getRecipes
     events:
       - http:
-          path: /orders
-          method: post
+          path: /recipes
+          method: get
           cors: true
-

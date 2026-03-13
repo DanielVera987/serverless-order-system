@@ -1,0 +1,5 @@
+services:
+  orders:
+    path: src/services/orders
+  recipes:
+    path: src/services/recipes
