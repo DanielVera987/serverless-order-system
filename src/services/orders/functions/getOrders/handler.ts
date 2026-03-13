@@ -1,5 +1,10 @@
-import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { ControllerBase } from '../../../../context/shared/infrastructure/controller/ControllerBase';
+import { ApiGatewayController } from './controllers/api/ApiGatewayController';
 
-export async function getOrders(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-  return { statusCode: 200, body: JSON.stringify({ message: 'handler orders getOrders' }) };
-}
+// Register controllers by event type
+const controllers = {
+  api: new ApiGatewayController(),
+};
+
+const controller = new ControllerBase(controllers);
+export const getOrders = (event: unknown) => controller.execute(event);
