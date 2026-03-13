@@ -20,11 +20,12 @@ export class DynamoDBAdapter implements DynamoDBAdapterDomain {
     return (result.Item as T) ?? null;
   }
 
-  async update<T extends Record<string, unknown>>(tableName: string, item: T): Promise<void> {
-    await this.client.send(new PutCommand({
+  async update<T extends Record<string, unknown>>(tableName: string, item: T): Promise<T> {
+    const result = await this.client.send(new PutCommand({
       TableName: tableName,
       Item: item,
     }));
+    return (result.Attributes as T) ?? null;
   }
 
   async delete(tableName: string, key: Record<string, unknown>): Promise<void> {

@@ -1,24 +1,38 @@
 import { UseCase } from '../../../../context/shared/domain/UseCase';
 import { Request } from '../../../../context/orders/domain/ports/Request';
-import { Injectable } from '../../../../context/shared/infrastructure/di';
+import { Inject, Injectable } from '../../../../context/shared/infrastructure/di';
+import OrderRepositoryDomain from '../../domain/repository/OrderRepository'
+import types from '../../../../services/orders/functions/postOrders/types'
+import { v4 as uuidv4 } from 'uuid';
+import Order from '../../domain/entity/Order';
 
 @Injectable()
 export class CreateOrderUseCase implements UseCase<Request, any[]> {
-  private orders: any[] = [];
+  constructor(
+    @Inject(types.OrderRepository) private readonly orderRepository: OrderRepositoryDomain
+  ) {}
 
   async execute(request: Request): Promise<any[]> {
     console.log('🚀 CreateOrderUseCase execute request', request);
 
-    // TODO: create orders in database
-    for (let i = 0; i < request.numberOrders; i++) {
-      this.orders.push({
-        id: i + 1,
-        status: 'pending',
-      });
+    try {
+      const orders: Order[] = [];
+      for (let i = 0; i < request.numberOrders; i++) {
+        const order: Order = await this.orderRepository.create({
+          id: uuidv4(),
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+        });
+
+        orders.push(order);
+      }
+
+      // TODO: send orders to sns topic
+
+      return Promise.resolve(orders); 
+    } catch (error) {
+      console.error(`❌ ${this.constructor.name}: Error creating orders`, error);
+      throw new Error(`❌ ${this.constructor.name}: Error creating orders`);
     }
-
-    // TODO: send orders to sns topic
-
-    return Promise.resolve(this.orders);
   }
 }

@@ -13,7 +13,7 @@ class OrderRepository implements OrderRepositoryDomain {
         @Inject(TypesShared.DynamoDBAdapter) private readonly dynamoDBAdapter: DynamoDBAdapter
     ) {}
 
-    async create(order: Order): Promise<void> {
+    async create(order: Order): Promise<Order> {
         try {
             const orderData = {
                 id: uuidv4(),
@@ -21,7 +21,7 @@ class OrderRepository implements OrderRepositoryDomain {
                 createdAt: order.createdAt,
             };
 
-            await this.dynamoDBAdapter.update(this.tableName, orderData);
+            return await this.dynamoDBAdapter.update(this.tableName, orderData);
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error creating order`, error);
             throw new Error(`❌ ${this.constructor.name}: Error creating order`);
@@ -38,7 +38,7 @@ class OrderRepository implements OrderRepositoryDomain {
         }
     }
 
-    async update(order: Order): Promise<void> {
+    async update(order: Order): Promise<Order> {
         try {
             const orderData = {
                 id: order.id,
@@ -46,7 +46,7 @@ class OrderRepository implements OrderRepositoryDomain {
                 createdAt: order.createdAt,
             };
 
-            await this.dynamoDBAdapter.update(this.tableName, orderData);
+            return await this.dynamoDBAdapter.update(this.tableName, orderData);
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error updating order`, error);
             throw new Error(`❌ ${this.constructor.name}: Error updating order`);
