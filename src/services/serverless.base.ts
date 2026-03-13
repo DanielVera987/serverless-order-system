@@ -25,10 +25,15 @@ export const baseConfig: DeepPartial<AWS> = {
   },
 };
 
-export function createService(serviceName: string, functions: AWS['functions']): AWS {
+export function createService(
+  serviceName: string,
+  functions: AWS['functions'],
+  resources?: DeepPartial<AWS['resources']>,
+): AWS {
   return {
     ...baseConfig,
     service: serviceName,
     functions,
+    ...(resources && { resources }),
   } as AWS;
 }
