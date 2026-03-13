@@ -1,3 +1,11 @@
+# 🏛️ Estructura
+
+# 📦 Servicios
+- Orders | Servicio para controlar las ordenes
+    - /orders
+        - GET
+        - POST
+
 # 💻 Usar en local
 
 1. Ingresar al servicio a usar (orders)
@@ -18,8 +26,5 @@ npm run start
 ```
 npm run deploy
 ```
-
-
-# 🏛️ Estructura
 
 # 👷 Arquitectura General
