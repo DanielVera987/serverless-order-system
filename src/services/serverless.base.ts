@@ -52,7 +52,27 @@ export const baseConfig: DeepPartial<AWS> = {
             Effect: 'Allow',
             Action: 'sns:Publish',
             Resource: '*',
-          }
+          },
+          {
+            Effect: 'Allow',
+            Action: 'sqs:SendMessage',
+            Resource: '*',
+          },
+          {
+            Effect: 'Allow',
+            Action: 'sqs:ReceiveMessage',
+            Resource: '*',
+          },
+          {
+            Effect: 'Allow',
+            Action: 'sqs:DeleteMessage',
+            Resource: '*',
+          },
+          {
+            Effect: 'Allow',
+            Action: 'sqs:GetQueueAttributes',
+            Resource: '*',
+          },
         ],
       },
     },

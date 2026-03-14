@@ -1,11 +1,20 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult, SQSEvent, SQSRecord } from 'aws-lambda';
 
+export interface SQSBody {
+  Type: string;
+  MessageId: string;
+  SequenceNumber: string;
+  TopicArn: string;
+  Message: string;
+  Timestamp: string;
+}
+
 export interface ApiGatewayHandler {
   handle(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult>;
 }
 
 export interface SqsHandler {
-  handleRecord(record: SQSRecord, body: unknown): Promise<void>;
+  handleRecord(record: SQSRecord, body: SQSBody): Promise<void>;
 }
 
 export interface Controllers {
