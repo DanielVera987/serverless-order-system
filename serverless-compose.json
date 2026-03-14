@@ -1,0 +1,10 @@
+{
+  "services": {
+    "orders": {
+      "path": "src/services/orders"
+    },
+    "kitchen": {
+      "path": "src/services/kitchen"
+    }
+  }
+}
