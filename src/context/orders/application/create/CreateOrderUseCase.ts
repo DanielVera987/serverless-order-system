@@ -18,13 +18,17 @@ export class CreateOrderUseCase implements UseCase<Request, any[]> {
     try {
       const orders: Order[] = [];
       for (let i = 0; i < request.numberOrders; i++) {
-        const order: Order = await this.orderRepository.create({
+        let data = {
           id: uuidv4(),
           status: 'pending',
           createdAt: new Date().toISOString(),
-        });
+        };
 
-        orders.push(order);
+        console.log('📊 CreateOrderUseCase data', data);
+
+        await this.orderRepository.create(data);
+
+        orders.push(data);
       }
 
       // TODO: send orders to sns topic
