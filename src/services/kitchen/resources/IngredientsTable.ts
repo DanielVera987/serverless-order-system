@@ -6,10 +6,10 @@ const IngredientsTable = {
     TableName: Config.TABLE_INGREDIENTS_DYNAMODB,
     BillingMode: 'PAY_PER_REQUEST',
     AttributeDefinitions: [
-      { AttributeName: 'name', AttributeType: 'S' },
+      { AttributeName: 'id', AttributeType: 'S' },
     ],
     KeySchema: [
-      { AttributeName: 'name', KeyType: 'HASH' },
+      { AttributeName: 'id', KeyType: 'HASH' },
     ],
   },
 };
