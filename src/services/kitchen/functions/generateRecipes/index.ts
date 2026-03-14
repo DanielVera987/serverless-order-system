@@ -10,6 +10,7 @@ const lambda = {
   description: 'Generate recipes',
   environment: {
     ORDERS_TABLE: 'restaurant-orders-${sls:stage}-orders',
+    INGREDIENTS_TABLE: 'restaurant-kitchen-${sls:stage}-ingredients',
   },
   events: [
     { 

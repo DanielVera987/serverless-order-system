@@ -3,4 +3,5 @@
  */
 
 export default Object.freeze({
+    TABLE_INGREDIENTS_DYNAMODB: '${self:service}-${self:provider.stage}-ingredients',
 });

@@ -1,10 +1,12 @@
 import type { AWS } from '@serverless/typescript';
 import { createService } from '../serverless.base';
 import { functions } from './index';
+import { resources } from './resources';
 
 const serverless = {
   service: 'restaurant-kitchen',
   functions: functions as unknown as AWS['functions'],
+  resources: resources as AWS['resources'],
   iamStatements: [
     {
       Effect: 'Allow',
@@ -21,6 +23,8 @@ const serverless = {
         'dynamodb:UpdateItem',
         'dynamodb:PutItem',
         'dynamodb:GetItem',
+        'dynamodb:Scan',
+        'dynamodb:BatchWriteItem',
       ],
       Resource: '*',
     },
@@ -31,6 +35,7 @@ module.exports = createService(
   serverless.service, 
   serverless.functions, 
   {
+    resources: serverless.resources,
     iamStatements: serverless.iamStatements,
   },
 );
