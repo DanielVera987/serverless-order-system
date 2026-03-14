@@ -7,18 +7,18 @@ import { v4 as uuidv4 } from 'uuid';
 import Order from '../../domain/entity/Order';
 
 @Injectable()
-export class CreateOrderUseCase implements UseCase<Request, any[]> {
+export class CreateOrderUseCase implements UseCase<Request, Order[]> {
   constructor(
     @Inject(types.OrderRepository) private readonly orderRepository: OrderRepositoryDomain
   ) {}
 
-  async execute(request: Request): Promise<any[]> {
+  async execute(request: Request): Promise<Order[]> {
     console.log('🚀 CreateOrderUseCase execute request', request);
 
     try {
       const orders: Order[] = [];
       for (let i = 0; i < request.numberOrders; i++) {
-        let data = {
+        let data: Order = {
           id: uuidv4(),
           status: 'pending',
           createdAt: new Date().toISOString(),
@@ -33,7 +33,7 @@ export class CreateOrderUseCase implements UseCase<Request, any[]> {
 
       // TODO: send orders to sns topic
 
-      return Promise.resolve(orders); 
+      return orders; 
     } catch (error) {
       console.error(`❌ ${this.constructor.name}: Error creating orders`, error);
       throw new Error(`❌ ${this.constructor.name}: Error creating orders`);
