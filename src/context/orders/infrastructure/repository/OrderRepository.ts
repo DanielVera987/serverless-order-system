@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 class OrderRepository implements OrderRepositoryDomain {
-    private readonly tableName = 'orders';
+    private readonly tableName = process.env.ORDERS_TABLE ?? 'orders';
 
     constructor(
         @Inject(TypesShared.DynamoDBAdapter) private readonly dynamoDBAdapter: DynamoDBAdapter
