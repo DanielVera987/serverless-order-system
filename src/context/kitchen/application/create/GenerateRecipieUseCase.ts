@@ -23,6 +23,7 @@ export default class GenerateRecipieUseCase implements UseCase<SQSMessageRequest
     const assignments: OrderWithRecipe[] = [];
 
     for (const order of request.Orders) {
+      // TODO: Generate recipe with AI (OpenAI)
       const recipe = getRandomRecipe();
 
       console.log(`🍽️ Order ${order.id} → Recipe: ${recipe.name}`);
