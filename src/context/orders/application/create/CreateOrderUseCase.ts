@@ -16,24 +16,22 @@ export class CreateOrderUseCase implements UseCase<Request, Order[]> {
     console.log('🚀 CreateOrderUseCase execute request', request);
 
     try {
-      let orders: Order[] = [];
+      let ordersData: Order[] = [];
       for (let i = 0; i < request.numberOrders; i++) {
-        let data: Order = {
+        ordersData.push({
           id: uuidv4(),
           status: 'pending',
           createdAt: new Date().toISOString(),
-        };
-
-        await this.orderRepository.create(data);
-
-        orders.push(data);
+        });
       }
 
-      console.log('📊 CreateOrderUseCase orders', orders);
+      await this.orderRepository.createBulk(ordersData);
+
+      console.log('📊 CreateOrderUseCase orders', ordersData);
 
       // TODO: send orders to sns topic
 
-      return orders; 
+      return ordersData; 
     } catch (error) {
       console.error(`❌ ${this.constructor.name}: Error creating orders`, error);
       throw new Error(`❌ ${this.constructor.name}: Error creating orders`);

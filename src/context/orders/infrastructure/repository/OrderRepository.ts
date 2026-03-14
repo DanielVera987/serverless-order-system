@@ -28,6 +28,21 @@ class OrderRepository implements OrderRepositoryDomain {
         }
     }
 
+    async createBulk(orders: Order[]): Promise<Order[]> {
+        try {
+            const items = orders.map(order => ({
+                id: uuidv4(),
+                status: order.status,
+                createdAt: order.createdAt,
+            }));
+
+            return await this.dynamoDBAdapter.createBulk(this.tableName, items);
+        } catch (error) {
+            console.error(`❌ ${this.constructor.name}: Error creating orders in bulk`, error);
+            throw new Error(`❌ ${this.constructor.name}: Error creating orders in bulk`);
+        }
+    }
+
     async get(id: string): Promise<Order | null> {
         try {
             const order = await this.dynamoDBAdapter.get<Order>(this.tableName, { id });

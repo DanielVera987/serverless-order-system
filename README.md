@@ -6,6 +6,9 @@
         - GET
         - POST
 
+# ♾️ Limitantes
+* Te limite maximo de 100 ordenes por llamada, esto mantiene un equilibrio en performars
+
 # 💻 Usar en local
 
 1. Ingresar al servicio a usar (orders)
