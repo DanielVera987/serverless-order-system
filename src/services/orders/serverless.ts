@@ -3,8 +3,37 @@ import { createService } from '../serverless.base';
 import { functions } from './index';
 import { resources } from './resources';
 
+const serverless = {
+  service: 'restaurant-orders',
+  functions: functions as unknown as AWS['functions'],
+  resources: resources as AWS['resources'],
+  iamStatements: [
+    {
+      Effect: 'Allow',
+      Action: [
+        'dynamodb:PutItem',
+        'dynamodb:GetItem',
+        'dynamodb:UpdateItem',
+        'dynamodb:DeleteItem',
+        'dynamodb:Scan',
+        'dynamodb:Query',
+        'dynamodb:BatchWriteItem',
+      ],
+      Resource: '*',
+    },
+    {
+      Effect: 'Allow',
+      Action: 'sns:Publish',
+      Resource: '*',
+    },
+  ],
+};
+
 module.exports = createService(
-  'restaurant-orders',
-  functions as unknown as AWS['functions'],
-  resources as AWS['resources'],
+  serverless.service,
+  serverless.functions,
+  {
+    resources: serverless.resources,
+    iamStatements: serverless.iamStatements,
+  },
 );

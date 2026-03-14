@@ -2,6 +2,24 @@ import type { AWS } from '@serverless/typescript';
 
 type DeepPartial<T> = { [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K] };
 
+type IamStatement = {
+  Effect: string;
+  Action: string | string[];
+  Resource: string | Record<string, unknown>;
+};
+
+const baseStatements: IamStatement[] = [
+  {
+    Effect: 'Allow',
+    Action: [
+      'logs:CreateLogGroup',
+      'logs:CreateLogStream',
+      'logs:PutLogEvents',
+    ],
+    Resource: '*',
+  },
+];
+
 export const baseConfig: DeepPartial<AWS> = {
   frameworkVersion: '3',
   provider: {
@@ -9,73 +27,6 @@ export const baseConfig: DeepPartial<AWS> = {
     runtime: 'nodejs20.x',
     region: 'us-east-1',
     stage: '${opt:stage, "dev"}',
-    // TODO: enhance this
-    iam: {
-      role: {
-        statements: [
-          {
-            Effect: 'Allow',
-            Action: 'dynamodb:PutItem',
-            Resource: '*',
-          },
-          {
-            Effect: 'Allow',
-            Action: 'dynamodb:GetItem',
-            Resource: '*',
-          },
-          {
-            Effect: 'Allow',
-            Action: 'dynamodb:UpdateItem',
-            Resource: '*',
-          },
-          {
-            Effect: 'Allow',
-            Action: 'dynamodb:DeleteItem',
-            Resource: '*',
-          },
-          {
-            Effect: 'Allow',
-            Action: 'dynamodb:Scan',
-            Resource: '*',
-          },
-          {
-            Effect: 'Allow',
-            Action: 'dynamodb:Query',
-            Resource: '*',
-          },
-          {
-            Effect: 'Allow',
-            Action: 'dynamodb:BatchWriteItem',
-            Resource: '*',
-          },
-          {
-            Effect: 'Allow',
-            Action: 'sns:Publish',
-            Resource: '*',
-          },
-          {
-            Effect: 'Allow',
-            Action: 'sqs:SendMessage',
-            Resource: '*',
-          },
-          {
-            Effect: 'Allow',
-            Action: 'sqs:ReceiveMessage',
-            Resource: '*',
-          },
-          {
-            Effect: 'Allow',
-            Action: 'sqs:DeleteMessage',
-            Resource: '*',
-          },
-          {
-            Effect: 'Allow',
-            Action: 'sqs:GetQueueAttributes',
-            Resource: '*',
-          },
-        ],
-      },
-    },
   },
   package: {
     individually: true,
@@ -98,12 +49,25 @@ export const baseConfig: DeepPartial<AWS> = {
 export function createService(
   serviceName: string,
   functions: AWS['functions'],
-  resources?: DeepPartial<AWS['resources']>,
+  options?: {
+    resources?: DeepPartial<AWS['resources']>;
+    iamStatements?: IamStatement[];
+  },
 ): AWS {
+  const statements = [...baseStatements, ...(options?.iamStatements ?? [])];
+
   return {
     ...baseConfig,
     service: serviceName,
+    provider: {
+      ...baseConfig.provider,
+      iam: {
+        role: {
+          statements,
+        },
+      },
+    },
     functions,
-    ...(resources && { resources }),
+    ...(options?.resources && { resources: options.resources }),
   } as AWS;
 }
