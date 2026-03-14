@@ -4,11 +4,12 @@ import { Injectable, Inject } from '../../../../../../context/shared/infrastruct
 import { Request } from '../../../../../../context/orders/domain/ports/Request';
 import { UseCase } from '../../../../../../context/shared/domain/UseCase';
 import types from '../../types';
+import Order from '../../../../../../context/orders/domain/entity/Order';
 
 @Injectable()
 export class ApiGatewayController implements ApiGatewayHandler {
   public constructor(
-    @Inject(types.CreateOrderUseCase) private readonly createOrderUseCase: UseCase<Request, void>,
+    @Inject(types.CreateOrderUseCase) private readonly createOrderUseCase: UseCase<Request, Order[]>,
   ) {}
 
   async handle(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
@@ -22,7 +23,11 @@ export class ApiGatewayController implements ApiGatewayHandler {
     // TODO: How handler to error?
     const response = await this.createOrderUseCase.execute(body);
 
-    return { statusCode: 200, body: JSON.stringify({ message: 'Orders created successfully', data: response }) };
+    return { statusCode: 200, body: JSON.stringify({ 
+      status: 'success',
+      message: 'Orders created successfully', 
+      data: response
+    }) };
   }
 
   private validateBody(body: Request): string | null {

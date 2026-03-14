@@ -10,10 +10,11 @@ import OrderRepository from '../../../../context/orders/infrastructure/repositor
 import { DynamoDBAdapter as DynamoDBAdapterDomain } from '../../../../context/shared/domain/database/DynamoDBAdapter';
 import { DynamoDBAdapter } from '../../../../context/shared/infrastructure/database/DynamoDBAdapter';
 import TypesShared from '../../../../context/shared/SharedTypes';
+import Order from '../../../../context/orders/domain/entity/Order';
 const container = new Container();
 
 container.bind<ApiGatewayHandler>(types.ApiGatewayController).to(ApiGatewayController);
-container.bind<UseCase<Request, any[]>>(types.CreateOrderUseCase).to(CreateOrderUseCase);
+container.bind<UseCase<Request, Order[]>>(types.CreateOrderUseCase).to(CreateOrderUseCase);
 container.bind<OrderRepositoryDomain>(types.OrderRepository).to(OrderRepository);
 container.bind<DynamoDBAdapterDomain>(TypesShared.DynamoDBAdapter).to(DynamoDBAdapter);
 
