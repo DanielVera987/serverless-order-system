@@ -5,6 +5,9 @@
     },
     "kitchen": {
       "path": "src/services/kitchen"
+    },
+    "warehouse": {
+      "path": "src/services/warehouse"
     }
   }
 }
