@@ -28,6 +28,11 @@ const serverless = {
       ],
       Resource: '*',
     },
+    {
+      Effect: 'Allow',
+      Action: 'sns:Publish',
+      Resource: '*',
+    },
   ],
 };
 

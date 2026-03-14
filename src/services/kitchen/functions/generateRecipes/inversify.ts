@@ -10,6 +10,8 @@ import { DynamoDBAdapter } from '../../../../context/shared/infrastructure/datab
 import OrderRepository from '../../../../context/kitchen/infrastructure/repository/OrderRepository';
 import OrderRepositoryDomain from '../../../../context/kitchen/domain/repository/OrderRepository';
 import TypesShared from '../../../../context/shared/SharedTypes';
+import { NotificationPublisher } from '../../../../context/shared/domain/notification/NotificationPublisher';
+import { SNSNotificationPublisher } from '../../../../context/shared/infrastructure/notification/SNSNotificationPublisher';
 
 const container = new Container();
 
@@ -17,5 +19,6 @@ container.bind<SqsHandler>(types.SQSController).to(SQSController);
 container.bind<DynamoDBAdapterDomain>(TypesShared.DynamoDBAdapter).to(DynamoDBAdapter);
 container.bind<OrderRepositoryDomain>(types.OrderRepository).to(OrderRepository);
 container.bind<UseCase<SQSMessageRequest, unknown>>(types.GenerateRecipieUseCase).to(GenerateRecipieUseCase);
+container.bind<NotificationPublisher>(TypesShared.NotificationPublisher).to(SNSNotificationPublisher);
 
 export default container;

@@ -11,6 +11,8 @@ const lambda = {
   environment: {
     ORDERS_TABLE: 'restaurant-orders-${sls:stage}-orders',
     INGREDIENTS_TABLE: 'restaurant-kitchen-${sls:stage}-ingredients',
+    SNS_RECIPE_CREATED_ARN: { Ref: 'SNSRecipeCreated' },
+    SQS_RECIPE_PROCESS_QUEUE: { Ref: 'SQSRecipeProcess' },
   },
   events: [
     { 

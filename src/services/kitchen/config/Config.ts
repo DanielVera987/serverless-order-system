@@ -4,4 +4,6 @@
 
 export default Object.freeze({
     TABLE_INGREDIENTS_DYNAMODB: '${self:service}-${self:provider.stage}-ingredients',
+    SNS_RECIPE_CREATED_TOPIC: '${self:service}-${self:provider.stage}-recipe-created.fifo',
+    SQS_RECIPE_PROCESS_QUEUE: '${self:service}-${self:provider.stage}-recipe-process.fifo',
 });

@@ -5,6 +5,9 @@ import { getRandomRecipe } from '../../domain/catalog/RecipesCatalog';
 import Recipe from '../../domain/entity/Recipe';
 import OrderRepository from '../../infrastructure/repository/OrderRepository';
 import types from '../../../../services/kitchen/functions/generateRecipes/types';
+import TypesShared from '../../../shared/SharedTypes';
+import { NotificationPublisher } from '../../../shared/domain/notification/NotificationPublisher';
+import Env from '../../../../services/kitchen/config/Environment';
 
 interface OrderWithRecipe {
   orderId: string;
@@ -14,7 +17,8 @@ interface OrderWithRecipe {
 @Injectable()
 export default class GenerateRecipieUseCase implements UseCase<SQSMessageRequest, OrderWithRecipe[]> {
   constructor(
-    @Inject(types.OrderRepository) private readonly orderRepository: OrderRepository
+    @Inject(types.OrderRepository) private readonly orderRepository: OrderRepository,
+    @Inject(TypesShared.NotificationPublisher) private readonly notificationPublisher: NotificationPublisher,
   ) {}
 
   async execute(request: SQSMessageRequest): Promise<OrderWithRecipe[]> {
@@ -45,7 +49,13 @@ export default class GenerateRecipieUseCase implements UseCase<SQSMessageRequest
 
     console.log('📊 GenerateRecipieUseCase assignments', JSON.stringify(assignments));
 
-    // TODO: Notificar recetas listas a inventario
+    await this.notificationPublisher.publish(
+      Env.SNS_RECIPE_CREATED_ARN,
+      'recipe-created-group-' + Date.now(),
+      assignments
+    );
+
+    console.log('📢 SNS: Recipes published to topic', Env.SNS_RECIPE_CREATED_ARN);
 
     return assignments;
   }

@@ -1,0 +1,32 @@
+import Config from "../config/Config";
+
+export const SQSRecipeProcess = {
+    Type: 'AWS::SQS::Queue',
+    Properties: {
+        QueueName: Config.SQS_RECIPE_PROCESS_QUEUE,
+        FifoQueue: true,
+        VisibilityTimeout: 30,
+    },
+};
+
+export const SQSRecipeProcessPolicy = {
+    Type: 'AWS::SQS::QueuePolicy',
+    Properties: {
+        Queues: [{ Ref: 'SQSRecipeProcess' }],
+        PolicyDocument: {
+            Statement: [
+                {
+                    Effect: 'Allow',
+                    Principal: { Service: 'sns.amazonaws.com' },
+                    Action: 'sqs:SendMessage',
+                    Resource: { 'Fn::GetAtt': ['SQSRecipeProcess', 'Arn'] },
+                    Condition: {
+                        ArnEquals: {
+                            'aws:SourceArn': { Ref: 'SNSRecipeCreated' },
+                        },
+                    },
+                },
+            ],
+        },
+    },
+};
