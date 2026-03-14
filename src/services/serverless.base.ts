@@ -47,6 +47,11 @@ export const baseConfig: DeepPartial<AWS> = {
             Effect: 'Allow',
             Action: 'dynamodb:BatchWriteItem',
             Resource: '*',
+          },
+          {
+            Effect: 'Allow',
+            Action: 'sns:Publish',
+            Resource: '*',
           }
         ],
       },

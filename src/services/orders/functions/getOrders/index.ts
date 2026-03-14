@@ -1,8 +1,10 @@
+import Config from "../../config/Config";
+
 const lambda = {
   handler: 'functions/getOrders/handler.getOrders',
   description: 'Get all orders',
   environment: {
-    ORDERS_TABLE: '${self:service}-${self:provider.stage}-orders',
+    ORDERS_TABLE: Config.TABLE_ORDERS_DYNAMODB,
   },
   events: [
     { 

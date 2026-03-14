@@ -1,7 +1,9 @@
+import Config from '../config/Config';
+
 const OrdersTable = {
   Type: 'AWS::DynamoDB::Table',
   Properties: {
-    TableName: '${self:service}-${self:provider.stage}-orders',
+    TableName: Config.TABLE_ORDERS_DYNAMODB,
     BillingMode: 'PAY_PER_REQUEST',
     AttributeDefinitions: [
       { AttributeName: 'id', AttributeType: 'S' },
