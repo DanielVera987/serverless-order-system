@@ -35,6 +35,8 @@ export class CreateOrderUseCase implements UseCase<Request, Order[]> {
 
       await this.notificationPublisher.publish(Env.SNS_ORDERS_CREATED_ARN, ordersData);
 
+      console.log('📢 SNS: Orders published to topic', Env.SNS_ORDERS_CREATED_ARN);
+
       return ordersData; 
     } catch (error) {
       console.error(`❌ ${this.constructor.name}: Error creating orders`, error);
