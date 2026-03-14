@@ -57,6 +57,9 @@ export const baseConfig: DeepPartial<AWS> = {
       },
     },
   },
+  package: {
+    individually: true,
+  },
   plugins: [
     'serverless-esbuild',
     'serverless-offline',

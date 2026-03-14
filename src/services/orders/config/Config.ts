@@ -6,5 +6,6 @@ export default Object.freeze({
     LAMBDA_ORDERS_CREATED: '${self:service}-${self:provider.stage}-orders-created',
     LAMBDA_ORDERS_GET: '${self:service}-${self:provider.stage}-orders-get',
     TABLE_ORDERS_DYNAMODB: '${self:service}-${self:provider.stage}-orders',
-    SNS_ORDERS_CREATED_TOPIC: '${self:service}-${self:provider.stage}-orders-created',
+    SNS_ORDERS_CREATED_TOPIC: '${self:service}-${self:provider.stage}-orders-created.fifo',
+    SQS_ORDERS_PROCESS_QUEUE: '${self:service}-${self:provider.stage}-orders-process.fifo',
 });

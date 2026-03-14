@@ -33,7 +33,11 @@ export class CreateOrderUseCase implements UseCase<Request, Order[]> {
 
       console.log('📊 CreateOrderUseCase orders', ordersData);
 
-      await this.notificationPublisher.publish(Env.SNS_ORDERS_CREATED_ARN, ordersData);
+      await this.notificationPublisher.publish(
+        Env.SNS_ORDERS_CREATED_ARN, 
+        'orders-created-group-' + Date.now(),
+        ordersData
+      );
 
       console.log('📢 SNS: Orders published to topic', Env.SNS_ORDERS_CREATED_ARN);
 

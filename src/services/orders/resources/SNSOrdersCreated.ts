@@ -5,6 +5,13 @@ const SNSOrdersCreated = {
     Properties: {
         TopicName: Config.SNS_ORDERS_CREATED_TOPIC,
         FifoTopic: true,
+        ContentBasedDeduplication: true,
+        Subscription: [
+            {
+                Protocol: 'sqs',
+                Endpoint: { 'Fn::GetAtt': ['SQSOrdersProcess', 'Arn'] },
+            },
+        ],
     },
 };
 

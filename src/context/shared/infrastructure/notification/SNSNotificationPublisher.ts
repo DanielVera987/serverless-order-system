@@ -10,10 +10,11 @@ export class SNSNotificationPublisher implements NotificationPublisher {
         this.client = new SNSClient({});
     }
 
-    async publish(topicArn: string, message: unknown): Promise<void> {
+    async publish(topicArn: string, messageGroupId: string, message: unknown): Promise<void> {
         await this.client.send(new PublishCommand({
             TopicArn: topicArn,
             Message: JSON.stringify(message),
+            MessageGroupId: messageGroupId
         }));
     }
 }
