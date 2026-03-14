@@ -2,14 +2,18 @@ import { UseCase } from '../../../../context/shared/domain/UseCase';
 import { Request } from '../../../../context/orders/domain/ports/Request';
 import { Inject, Injectable } from '../../../../context/shared/infrastructure/di';
 import OrderRepositoryDomain from '../../domain/repository/OrderRepository'
+import { NotificationPublisher } from '../../../shared/domain/notification/NotificationPublisher';
 import types from '../../../../services/orders/functions/postOrders/types'
+import TypesShared from '../../../shared/SharedTypes';
 import { v4 as uuidv4 } from 'uuid';
 import Order from '../../domain/entity/Order';
+import Env from '../../../../services/orders/config/Environment';
 
 @Injectable()
 export class CreateOrderUseCase implements UseCase<Request, Order[]> {
   constructor(
-    @Inject(types.OrderRepository) private readonly orderRepository: OrderRepositoryDomain
+    @Inject(types.OrderRepository) private readonly orderRepository: OrderRepositoryDomain,
+    @Inject(TypesShared.NotificationPublisher) private readonly notificationPublisher: NotificationPublisher,
   ) {}
 
   async execute(request: Request): Promise<Order[]> {
@@ -29,7 +33,7 @@ export class CreateOrderUseCase implements UseCase<Request, Order[]> {
 
       console.log('📊 CreateOrderUseCase orders', ordersData);
 
-      // TODO: send orders to sns topic
+      await this.notificationPublisher.publish(Env.SNS_ORDERS_CREATED_ARN, ordersData);
 
       return ordersData; 
     } catch (error) {

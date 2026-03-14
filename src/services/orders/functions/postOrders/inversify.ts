@@ -9,6 +9,8 @@ import OrderRepositoryDomain from '../../../../context/orders/domain/repository/
 import OrderRepository from '../../../../context/orders/infrastructure/repository/OrderRepository';
 import { DynamoDBAdapter as DynamoDBAdapterDomain } from '../../../../context/shared/domain/database/DynamoDBAdapter';
 import { DynamoDBAdapter } from '../../../../context/shared/infrastructure/database/DynamoDBAdapter';
+import { NotificationPublisher } from '../../../../context/shared/domain/notification/NotificationPublisher';
+import { SNSNotificationPublisher } from '../../../../context/shared/infrastructure/notification/SNSNotificationPublisher';
 import TypesShared from '../../../../context/shared/SharedTypes';
 import Order from '../../../../context/orders/domain/entity/Order';
 const container = new Container();
@@ -17,5 +19,6 @@ container.bind<ApiGatewayHandler>(types.ApiGatewayController).to(ApiGatewayContr
 container.bind<UseCase<Request, Order[]>>(types.CreateOrderUseCase).to(CreateOrderUseCase);
 container.bind<OrderRepositoryDomain>(types.OrderRepository).to(OrderRepository);
 container.bind<DynamoDBAdapterDomain>(TypesShared.DynamoDBAdapter).to(DynamoDBAdapter);
+container.bind<NotificationPublisher>(TypesShared.NotificationPublisher).to(SNSNotificationPublisher);
 
 export default container;
