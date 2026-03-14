@@ -15,6 +15,15 @@ const serverless = {
       ],
       Resource: '*',
     },
+    {
+      Effect: 'Allow',
+      Action: [
+        'dynamodb:UpdateItem',
+        'dynamodb:PutItem',
+        'dynamodb:GetItem',
+      ],
+      Resource: '*',
+    },
   ],
 };
 

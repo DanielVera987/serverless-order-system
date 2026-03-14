@@ -31,7 +31,7 @@ class OrderRepository implements OrderRepositoryDomain {
     async createBulk(orders: Order[]): Promise<Order[]> {
         try {
             const items = orders.map(order => ({
-                id: uuidv4(),
+                id: order.id,
                 status: order.status,
                 createdAt: order.createdAt,
             }));

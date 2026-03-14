@@ -8,6 +8,9 @@ const SQS_ORDERS_PROCESS_ARN = {
 const lambda = {
   handler: 'functions/generateRecipes/handler.generateRecipes',
   description: 'Generate recipes',
+  environment: {
+    ORDERS_TABLE: 'restaurant-orders-${sls:stage}-orders',
+  },
   events: [
     { 
       sqs: {
