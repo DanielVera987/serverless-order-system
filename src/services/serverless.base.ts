@@ -43,6 +43,11 @@ export const baseConfig: DeepPartial<AWS> = {
             Action: 'dynamodb:Query',
             Resource: '*',
           },
+          {
+            Effect: 'Allow',
+            Action: 'dynamodb:BatchWriteItem',
+            Resource: '*',
+          }
         ],
       },
     },
