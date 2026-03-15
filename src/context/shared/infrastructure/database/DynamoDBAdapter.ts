@@ -68,9 +68,10 @@ export class DynamoDBAdapter implements DynamoDBAdapterDomain {
     }));
   }
 
-  async scan<T>(tableName: string): Promise<T[]> {
+  async scan<T>(tableName: string, consistentRead = false): Promise<T[]> {
     const result = await this.client.send(new ScanCommand({
       TableName: tableName,
+      ConsistentRead: consistentRead,
     }));
     return (result.Items as T[]) ?? [];
   }
