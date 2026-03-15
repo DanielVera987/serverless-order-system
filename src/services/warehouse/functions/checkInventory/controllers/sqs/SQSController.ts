@@ -12,8 +12,9 @@ export class SQSController implements SqsHandler {
     ) {}
 
     async handleRecord(record: SQSRecord, body: SQSBody): Promise<void> {
-        const assignments = JSON.parse(body.Message);
+        const parsed = JSON.parse(body.Message);
+        const request = parsed.assignments ? parsed : { assignments: parsed };
 
-        await this.checkInventoryUseCase.execute({ assignments });
+        await this.checkInventoryUseCase.execute(request);
     }
 }

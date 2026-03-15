@@ -15,6 +15,7 @@ export class CheckInventoryUseCase implements UseCase<InventoryCheckRequest, voi
   ) {}
 
   async execute(request: InventoryCheckRequest): Promise<void> {
+    console.log('🚀 CheckInventoryUseCase execute request', request);
     console.log(`🔍 CheckInventoryUseCase: checking stock for ${request.assignments.length} orders`);
 
     const allIngredients = await this.ingredientRepository.getAll();
@@ -48,15 +49,24 @@ export class CheckInventoryUseCase implements UseCase<InventoryCheckRequest, voi
       readyAssignments.push(assignment);
     }
 
+    await this.isReadyAssignmentPublish(readyAssignments);
+
+    await this.isPendingAssignmentPublish(pendingAssignments, missingIngredients);
+  }
+
+  private async isReadyAssignmentPublish(readyAssignments: OrderRecipeAssignment[]): Promise<void> {
     if (readyAssignments.length > 0) {
       await this.notificationPublisher.publish(
         Env.SNS_ORDER_READY_ARN,
         'order-ready-' + Date.now(),
         { assignments: readyAssignments }
       );
-      console.log(`📢 SNS: ${readyAssignments.length} orders published to order-ready`);
     }
 
+    console.log(`📢 SNS: ${readyAssignments.length} orders published to order-ready`);
+  }
+
+  private async isPendingAssignmentPublish(pendingAssignments: OrderRecipeAssignment[], missingIngredients: Map<string, number>): Promise<void> {
     if (pendingAssignments.length > 0) {
       const ingredients = Array.from(missingIngredients.entries()).map(([name, quantity]) => ({ name, quantity }));
 
@@ -65,6 +75,7 @@ export class CheckInventoryUseCase implements UseCase<InventoryCheckRequest, voi
         'ingredients-needed-' + Date.now(),
         { ingredients, assignments: pendingAssignments }
       );
+
       console.log(`📢 SNS: ${pendingAssignments.length} orders need ingredients, published to ingredients-needed`);
     }
   }
