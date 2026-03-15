@@ -3,7 +3,7 @@ import { Injectable, Inject } from '../../../shared/infrastructure/di';
 import { NotificationPublisher } from '../../../shared/domain/notification/NotificationPublisher';
 import TypesShared from '../../../shared/SharedTypes';
 import IngredientRepository from '../../infrastructure/repository/IngredientRepository';
-import { InventoryCheckRequest, OrderRecipeAssignment, RecipeIngredient } from '../../domain/ports/InventoryCheckRequest';
+import { InventoryCheckRequest, OrderRecipeAssignment } from '../../domain/ports/InventoryCheckRequest';
 import Env from '../../../../services/warehouse/config/Environment';
 import types from '../../../../services/warehouse/functions/checkInventory/types';
 
@@ -23,7 +23,6 @@ export class CheckInventoryUseCase implements UseCase<InventoryCheckRequest, voi
 
     const readyAssignments: OrderRecipeAssignment[] = [];
     const pendingAssignments: OrderRecipeAssignment[] = [];
-    const missingIngredients = new Map<string, number>();
 
     for (const assignment of request.assignments) {
       const hasStock = assignment.recipe.ingredients.every(ingredient => {
@@ -33,7 +32,6 @@ export class CheckInventoryUseCase implements UseCase<InventoryCheckRequest, voi
 
       if (!hasStock) {
         pendingAssignments.push(assignment);
-        this.accumulateMissing(assignment.recipe.ingredients, stockMap, missingIngredients);
         console.log(`⚠️ Order ${assignment.orderId}: missing ingredients for ${assignment.recipe.name}`);
         continue;
       }
@@ -51,7 +49,8 @@ export class CheckInventoryUseCase implements UseCase<InventoryCheckRequest, voi
 
     await this.isReadyAssignmentPublish(readyAssignments);
 
-    await this.isPendingAssignmentPublish(pendingAssignments, missingIngredients);
+    const totalDeficit = this.calculateTotalDeficit(pendingAssignments, stockMap);
+    await this.isPendingAssignmentPublish(pendingAssignments, totalDeficit);
   }
 
   private async isReadyAssignmentPublish(readyAssignments: OrderRecipeAssignment[]): Promise<void> {
@@ -66,9 +65,9 @@ export class CheckInventoryUseCase implements UseCase<InventoryCheckRequest, voi
     console.log(`📢 SNS: ${readyAssignments.length} orders published to order-ready`);
   }
 
-  private async isPendingAssignmentPublish(pendingAssignments: OrderRecipeAssignment[], missingIngredients: Map<string, number>): Promise<void> {
+  private async isPendingAssignmentPublish(pendingAssignments: OrderRecipeAssignment[], deficit: Map<string, number>): Promise<void> {
     if (pendingAssignments.length > 0) {
-      const ingredients = Array.from(missingIngredients.entries()).map(([name, quantity]) => ({ name, quantity }));
+      const ingredients = Array.from(deficit.entries()).map(([name, quantity]) => ({ name, quantity }));
 
       await this.notificationPublisher.publish(
         Env.SNS_INGREDIENTS_NEEDED_ARN,
@@ -80,18 +79,28 @@ export class CheckInventoryUseCase implements UseCase<InventoryCheckRequest, voi
     }
   }
 
-  private accumulateMissing(
-    required: RecipeIngredient[],
+  private calculateTotalDeficit(
+    pendingAssignments: OrderRecipeAssignment[],
     stockMap: Map<string, { quantity: number }>,
-    missingIngredients: Map<string, number>,
-  ): void {
-    for (const ingredient of required) {
-      const available = stockMap.get(ingredient.name)?.quantity ?? 0;
-      const deficit = Math.max(0, ingredient.quantity - available);
-      if (deficit > 0) {
-        const current = missingIngredients.get(ingredient.name) ?? 0;
-        missingIngredients.set(ingredient.name, current + deficit);
+  ): Map<string, number> {
+    const totalNeeded = new Map<string, number>();
+
+    for (const assignment of pendingAssignments) {
+      for (const ingredient of assignment.recipe.ingredients) {
+        const current = totalNeeded.get(ingredient.name) ?? 0;
+        totalNeeded.set(ingredient.name, current + ingredient.quantity);
       }
     }
+
+    const deficit = new Map<string, number>();
+    for (const [name, needed] of totalNeeded) {
+      const available = stockMap.get(name)?.quantity ?? 0;
+      const missing = Math.max(0, needed - available);
+      if (missing > 0) {
+        deficit.set(name, missing);
+      }
+    }
+
+    return deficit;
   }
 }
