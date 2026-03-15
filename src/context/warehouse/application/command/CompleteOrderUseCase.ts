@@ -2,6 +2,7 @@ import { UseCase } from '../../../shared/domain/UseCase';
 import { Injectable, Inject } from '../../../shared/infrastructure/di';
 import OrderRepository from '../../infrastructure/repository/OrderRepository';
 import { CompleteOrderRequest } from '../../domain/ports/CompleteOrderRequest';
+import { OrderStatus } from '../../../shared/domain/enums/OrderEnums';
 
 const TYPES = {
   OrderRepository: Symbol.for('OrderRepository'),
@@ -26,11 +27,11 @@ export class CompleteOrderUseCase implements UseCase<CompleteOrderRequest, void>
 
       await this.orderRepository.update({
         ...order,
-        status: 'delivered',
+        status: OrderStatus.DELIVERED,
         updatedAt: new Date().toISOString(),
       });
 
-      console.log(`✅ Order ${assignment.orderId} → delivered`);
+      console.log(`✅ Order ${assignment.orderId} → ${OrderStatus.DELIVERED}`);
     }
   }
 }

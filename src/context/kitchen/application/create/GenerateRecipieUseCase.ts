@@ -8,6 +8,7 @@ import types from '../../../../services/kitchen/functions/generateRecipes/types'
 import TypesShared from '../../../shared/SharedTypes';
 import { NotificationPublisher } from '../../../shared/domain/notification/NotificationPublisher';
 import Env from '../../../../services/kitchen/config/Environment';
+import { OrderStatus } from '../../../shared/domain/enums/OrderEnums';
 
 interface OrderWithRecipe {
   orderId: string;
@@ -34,7 +35,7 @@ export default class GenerateRecipieUseCase implements UseCase<SQSMessageRequest
 
       await this.orderRepository.update({
         id: order.id,
-        status: 'preparing',
+        status: OrderStatus.PREPARING,
         recipeId: recipe.id,
         recipeName: recipe.name,
         createdAt: order.createdAt,

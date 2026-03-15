@@ -8,6 +8,7 @@ import TypesShared from '../../../shared/SharedTypes';
 import { v4 as uuidv4 } from 'uuid';
 import Order from '../../domain/entity/Order';
 import Env from '../../../../services/orders/config/Environment';
+import { OrderStatus } from '../../../shared/domain/enums/OrderEnums';
 
 @Injectable()
 export class CreateOrderUseCase implements UseCase<Request, Order[]> {
@@ -24,7 +25,7 @@ export class CreateOrderUseCase implements UseCase<Request, Order[]> {
       for (let i = 0; i < request.numberOrders; i++) {
         ordersData.push({
           id: uuidv4(),
-          status: 'pending',
+          status: OrderStatus.PENDING,
           createdAt: new Date().toISOString(),
         });
       }
