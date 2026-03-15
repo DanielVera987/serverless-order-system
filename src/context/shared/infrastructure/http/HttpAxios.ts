@@ -1,6 +1,8 @@
 import axios from "axios";
 import Http from "../../domain/http/Http";
+import { Injectable } from "../di";
 
+@Injectable()
 export default class HttpAxios implements Http {
   get(url: string): Promise<any> {
     return axios.get(url);

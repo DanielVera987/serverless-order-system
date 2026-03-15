@@ -11,11 +11,18 @@ const lambda = {
   environment: {
     INGREDIENTS_TABLE: 'restaurant-kitchen-${sls:stage}-ingredients',
     SNS_ORDER_READY_ARN: { Ref: 'SNSOrderReady' },
+    SNS_INGREDIENTS_NEEDED_ARN: { Ref: 'SNSIngredientsNeeded' },
   },
   events: [
     {
       sqs: {
         arn: SQS_RECIPE_PROCESS_ARN,
+        batchSize: 1,
+      },
+    },
+    {
+      sqs: {
+        arn: { 'Fn::GetAtt': ['SQSRestockQueue', 'Arn'] },
         batchSize: 1,
       },
     },
