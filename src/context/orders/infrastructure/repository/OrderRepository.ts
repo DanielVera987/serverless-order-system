@@ -43,9 +43,21 @@ class OrderRepository implements OrderRepositoryDomain {
         }
     }
 
-    async getAll(): Promise<Order[]> {
+    async getAll(filters?: Record<any, any>): Promise<Order[]> {
         try {
-            return await this.dynamoDBAdapter.scan<Order>(this.tableName);
+            if (filters?.status) {
+                return await this.dynamoDBAdapter.scan<Order>(this.tableName, {
+                    filterExpression: '#status = :statusValue',
+                    expressionAttributeNames: {
+                        '#status': 'status',
+                    },
+                    expressionAttributeValues: {
+                        ':statusValue': filters.status,
+                    },
+                });
+            } else {
+                return await this.dynamoDBAdapter.scan<Order>(this.tableName);
+            }
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error fetching all orders`, error);
             throw new Error(`❌ ${this.constructor.name}: Error fetching all orders`);

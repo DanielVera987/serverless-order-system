@@ -13,7 +13,10 @@ export class ApiGatewayController implements ApiGatewayHandler {
 
   async handle(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
     try {
-      const orders = await this.getOrdersUseCase.execute({});
+      const status = event.queryStringParameters?.status;
+      const filters = status ? { status } : {};
+
+      const orders = await this.getOrdersUseCase.execute(filters);
 
       if (!orders) {
         return {

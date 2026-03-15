@@ -4,7 +4,7 @@ export default interface OrderRepository {
   create(order: Order): Promise<Order>;
   createBulk(orders: Order[]): Promise<Order[]>;
   get(id: string): Promise<Order | null>;
-  getAll(): Promise<Order[]>;
+  getAll(filters?: Record<any, any>): Promise<Order[]>;
   update(order: Order): Promise<Order>;
   delete(id: string): Promise<void>;
 }

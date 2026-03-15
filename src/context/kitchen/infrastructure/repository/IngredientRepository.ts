@@ -46,7 +46,7 @@ export default class IngredientRepository implements IngredientRepositoryDomain 
 
     async getAll(): Promise<Ingredient[]> {
         try {
-            const items = await this.dynamoDBAdapter.scan(this.tableName);
+            const items = await this.dynamoDBAdapter.scan(this.tableName, {});
             return items as Ingredient[];
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error getting all ingredients`, error);

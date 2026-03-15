@@ -3,6 +3,6 @@ export interface DynamoDBAdapter {
     createBulk<T extends Record<string, unknown>>(tableName: string, items: T[]): Promise<T[]>;
     update<T extends Record<string, unknown>>(tableName: string, item: T): Promise<T>;
     delete(tableName: string, key: Record<string, unknown>): Promise<void>;
-    scan<T>(tableName: string, consistentRead?: boolean): Promise<T[]>;
+    scan<T>(tableName: string, options?: { consistentRead?: boolean; filterExpression?: string; expressionAttributeNames?: Record<string, string>; expressionAttributeValues?: Record<string, unknown> }): Promise<T[]>;
     query<T>(tableName: string, keyCondition: string, expressionValues: Record<string, unknown>): Promise<T[]>;
 }
