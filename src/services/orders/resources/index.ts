@@ -1,13 +1,17 @@
 import OrdersTable from './OrdersTable';
 import SNSOrdersCreated from './SNSOrdersCreated';
-import SQSOrdersProcess from './SQSOrdersProcess';
+import SQSOrdersProcess, { SQSOrdersProcessDLQ } from './SQSOrdersProcess';
 import SQSOrdersProcessPolicy from './SQSOrdersProcessPolicy';
+import { SNSDLQAlarm, OrdersProcessDLQAlarm } from './DLQAlarm';
 
 export const resources = {
   Resources: {
     OrdersTable,
+    SQSOrdersProcessDLQ,
     SQSOrdersProcess,
     SQSOrdersProcessPolicy,
     SNSOrdersCreated,
+    SNSDLQAlarm,
+    OrdersProcessDLQAlarm,
   },
 };

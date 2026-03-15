@@ -9,4 +9,7 @@ export default Object.freeze({
     SQS_BUY_MARKET_QUEUE: '${self:service}-${self:provider.stage}-buy-market.fifo',
     SNS_INGREDIENTS_PURCHASED_TOPIC: '${self:service}-${self:provider.stage}-ingredients-purchased.fifo',
     SQS_RESTOCK_QUEUE: '${self:service}-${self:provider.stage}-restock.fifo',
+    SQS_ORDER_DELIVERY_DLQ: '${self:service}-${self:provider.stage}-order-delivery-dlq.fifo',
+    SQS_BUY_MARKET_DLQ: '${self:service}-${self:provider.stage}-buy-market-dlq.fifo',
+    SQS_RESTOCK_DLQ: '${self:service}-${self:provider.stage}-restock-dlq.fifo',
 });

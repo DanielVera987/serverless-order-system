@@ -1,11 +1,24 @@
 import Config from '../config/Config';
 
+export const SQSRestockQueueDLQ = {
+    Type: 'AWS::SQS::Queue',
+    Properties: {
+        QueueName: Config.SQS_RESTOCK_DLQ,
+        FifoQueue: true,
+        MessageRetentionPeriod: 432000,
+    },
+};
+
 export const SQSRestockQueue = {
     Type: 'AWS::SQS::Queue',
     Properties: {
         QueueName: Config.SQS_RESTOCK_QUEUE,
         FifoQueue: true,
         VisibilityTimeout: 30,
+        RedrivePolicy: {
+            deadLetterTargetArn: { 'Fn::GetAtt': ['SQSRestockQueueDLQ', 'Arn'] },
+            maxReceiveCount: 6,
+        },
     },
 };
 

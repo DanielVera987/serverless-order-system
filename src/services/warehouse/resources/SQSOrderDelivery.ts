@@ -1,11 +1,24 @@
 import Config from '../config/Config';
 
+export const SQSOrderDeliveryDLQ = {
+    Type: 'AWS::SQS::Queue',
+    Properties: {
+        QueueName: Config.SQS_ORDER_DELIVERY_DLQ,
+        FifoQueue: true,
+        MessageRetentionPeriod: 432000,
+    },
+};
+
 export const SQSOrderDelivery = {
     Type: 'AWS::SQS::Queue',
     Properties: {
         QueueName: Config.SQS_ORDER_DELIVERY_QUEUE,
         FifoQueue: true,
         VisibilityTimeout: 30,
+        RedrivePolicy: {
+            deadLetterTargetArn: { 'Fn::GetAtt': ['SQSOrderDeliveryDLQ', 'Arn'] },
+            maxReceiveCount: 6,
+        },
     },
 };
 
