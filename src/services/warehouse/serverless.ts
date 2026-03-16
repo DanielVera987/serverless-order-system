@@ -11,6 +11,19 @@ const serverless = {
     {
       Effect: 'Allow',
       Action: [
+        'dynamodb:PutItem',
+        'dynamodb:GetItem',
+        'dynamodb:UpdateItem',
+        'dynamodb:DeleteItem',
+        'dynamodb:Scan',
+        'dynamodb:Query',
+        'dynamodb:BatchWriteItem',
+      ],
+      Resource: '*',
+    },
+    {
+      Effect: 'Allow',
+      Action: [
         'sqs:ReceiveMessage',
         'sqs:DeleteMessage',
         'sqs:GetQueueAttributes',

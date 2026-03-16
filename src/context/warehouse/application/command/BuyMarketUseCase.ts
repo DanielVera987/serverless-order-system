@@ -7,6 +7,9 @@ import FarmersMarketRepository from '../../domain/repository/FarmersMarketReposi
 import IngredientRepositoryDomain from '../../domain/repository/IngredientRepository';
 import { NotificationPublisher } from '../../../shared/domain/notification/NotificationPublisher';
 import Env from '../../../../services/warehouse/config/Environment';
+import PurchaseHistoryRepositoryDomain from "../../domain/repository/PurchaseHistoryRepository";
+import { v4 as uuidv4 } from 'uuid';
+import PurchaseHistory from "../../domain/entity/PurchaseHistory";
 
 @Injectable()
 export default class BuyMarketUseCase implements UseCase<BuyMarketRequest, void> {
@@ -14,6 +17,7 @@ export default class BuyMarketUseCase implements UseCase<BuyMarketRequest, void>
     @Inject(Types.FarmersMarketRepository) private readonly farmersMarketRepository: FarmersMarketRepository,
     @Inject(Types.IngredientRepository) private readonly ingredientRepository: IngredientRepositoryDomain,
     @Inject(TypesShared.NotificationPublisher) private readonly notificationPublisher: NotificationPublisher,
+    @Inject(Types.PurchaseHistoryRepository) private readonly purchaseHistoryRepository: PurchaseHistoryRepositoryDomain,
   ) {}
 
   async execute(request: BuyMarketRequest): Promise<void> {
@@ -22,6 +26,7 @@ export default class BuyMarketUseCase implements UseCase<BuyMarketRequest, void>
     try {
       const allIngredients = await this.ingredientRepository.getAll();
       const stockMap = new Map(allIngredients.map(i => [i.name, i]));
+      const purchaseHistories: PurchaseHistory[] = [];
 
       await Promise.all(request.ingredients.map(async (ingredient) => {
         let purchased = 0;
@@ -45,9 +50,26 @@ export default class BuyMarketUseCase implements UseCase<BuyMarketRequest, void>
             });
           }
 
+          const purchaseHistory: PurchaseHistory = {
+            id: uuidv4(),
+            entityType: 'ORDER',
+            purchaseDate: new Date().toISOString(),
+            ingredients: [{
+              name: ingredient.name,
+              quantity: response.quantitySold
+            }],
+            createdAt: new Date().toISOString(),
+          };
+
+          console.log('🔵 BuyMarketUseCase: purchaseHistory', purchaseHistory);
+
+          purchaseHistories.push(purchaseHistory);
+
           console.log(`✅ Bought ${response.quantitySold} of ${ingredient.name} (${purchased}/${ingredient.quantity})`);
         }
       }));
+
+      await this.purchaseHistoryRepository.create(purchaseHistories);
 
       console.log('📊 BuyMarketUseCase: all ingredients purchased and restocked');
 

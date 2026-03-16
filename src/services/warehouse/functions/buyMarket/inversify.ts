@@ -17,6 +17,8 @@ import { SNSNotificationPublisher } from '../../../../context/shared/infrastruct
 import Http from '../../../../context/shared/domain/http/Http';
 import HttpAxios from '../../../../context/shared/infrastructure/http/HttpAxios';
 import TypesShared from '../../../../context/shared/SharedTypes';
+import PurchaseHistoryRepositoryDomain from '../../../../context/warehouse/domain/repository/PurchaseHistoryRepository';
+import PurchaseHistoryRepository from '../../../../context/warehouse/infrastructure/repository/PurchaseHistoryRepository';
 
 const container = new Container();
 
@@ -26,6 +28,7 @@ container.bind<NotificationPublisher>(TypesShared.NotificationPublisher).to(SNSN
 container.bind<Http>(TypesShared.Http).to(HttpAxios);
 container.bind<FarmersMarketRepositoryDomain>(Types.FarmersMarketRepository).to(FarmersMarketRepository);
 container.bind<IngredientRepositoryDomain>(Types.IngredientRepository).to(IngredientRepository);
+container.bind<PurchaseHistoryRepositoryDomain>(Types.PurchaseHistoryRepository).to(PurchaseHistoryRepository);
 container.bind<UseCase<BuyMarketRequest, void>>(Types.BuyMarketUseCase).to(BuyMarketUseCase);
 
 export default container;

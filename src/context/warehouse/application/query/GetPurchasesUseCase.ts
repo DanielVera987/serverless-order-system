@@ -1,0 +1,24 @@
+import { UseCase } from "../../../shared/domain/UseCase";
+import { Inject, Injectable } from "../../../shared/infrastructure/di";
+import PurchaseHistoryRepositoryDomain from "../../domain/repository/PurchaseHistoryRepository";
+import PurchaseHistory from "../../domain/entity/PurchaseHistory";
+import types from "../../../../services/warehouse/functions/getPurchases/types";
+import { PaginatedResult } from "../../../shared/domain/database/PaginatedResult";
+import GetPurchaseHistoryRequest from "../../domain/ports/GetPurchaseHistoryRequest";
+
+@Injectable()
+export default class GetPurchasesUseCase implements UseCase<unknown, PaginatedResult<PurchaseHistory>> {
+    constructor(
+        @Inject(types.PurchaseHistoryRepository) private readonly purchaseHistoryRepository: PurchaseHistoryRepositoryDomain
+    ) {}
+
+    async execute(params: GetPurchaseHistoryRequest): Promise<PaginatedResult<PurchaseHistory>> {
+        console.log('🔵 GetPurchasesUseCase: params', params);
+
+        const result = await this.purchaseHistoryRepository.getAll(params);
+
+        console.log('🔵 GetPurchasesUseCase: result', result);
+
+        return result;
+    }
+}

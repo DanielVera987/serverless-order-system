@@ -3,4 +3,5 @@ export default Object.freeze({
   FarmersMarketRepository: Symbol.for('FarmersMarketRepository'),
   IngredientRepository: Symbol.for('IngredientRepository'),
   SQSController: Symbol.for('SQSController'),
+  PurchaseHistoryRepository: Symbol.for('PurchaseHistoryRepository'),
 });

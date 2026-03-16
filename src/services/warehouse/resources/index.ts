@@ -5,9 +5,11 @@ import { SQSOrderDelivery, SQSOrderDeliveryDLQ, SQSOrderDeliveryPolicy } from '.
 import { SQSBuyMarket, SQSBuyMarketDLQ, SQSBuyMarketPolicy } from './SQSBuyMarket';
 import { SQSRestockQueue, SQSRestockQueueDLQ, SQSRestockQueuePolicy } from './SQSRestockQueue';
 import { SNSDLQAlarm, OrderDeliveryDLQAlarm, BuyMarketDLQAlarm, RestockDLQAlarm } from './DLQAlarm';
+import TablePurchaseHistory from './TablePurchaseHistory';
 
 export const resources = {
   Resources: {
+    TablePurchaseHistory,
     SNSOrderReady,
     SNSIngredientsNeeded,
     SNSIngredientsPurchased,

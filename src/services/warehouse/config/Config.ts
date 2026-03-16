@@ -12,4 +12,5 @@ export default Object.freeze({
     SQS_ORDER_DELIVERY_DLQ: '${self:service}-${self:provider.stage}-order-delivery-dlq.fifo',
     SQS_BUY_MARKET_DLQ: '${self:service}-${self:provider.stage}-buy-market-dlq.fifo',
     SQS_RESTOCK_DLQ: '${self:service}-${self:provider.stage}-restock-dlq.fifo',
+    TABLE_PURCHASE_HISTORY: '${self:service}-${self:provider.stage}-purchase-history',
 });
