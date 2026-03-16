@@ -39,10 +39,6 @@ export class ApiGatewayController implements ApiGatewayHandler {
       return 'numberOrders must be a number';
     }
 
-    if (body.numberOrders < 1 || body.numberOrders > 1000) {
-      return 'numberOrders must be between 1 and 1000';
-    }
-
     return null;
   }
 }
