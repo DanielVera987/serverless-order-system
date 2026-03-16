@@ -19,7 +19,9 @@ export default class GetOrdersUseCase implements UseCase<GetOrdersRequest, Order
 
       console.log(`✅ ${this.constructor.name} Successfully fetched orders:`, orders);
       
-      return orders;
+      const sortedOrders = [...orders].sort((a: Order, b: Order) => b.orderNumber - a.orderNumber);
+
+      return sortedOrders; 
     } catch (error) {
       console.error('❌ Error fetching orders', error);
       throw new Error('Failed to fetch orders');
