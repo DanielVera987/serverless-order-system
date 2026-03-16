@@ -17,6 +17,7 @@ class OrderRepository implements OrderRepositoryDomain {
         try {
             const orderData = {
                 id: uuidv4(),
+                orderNumber: order.orderNumber,
                 status: order.status,
                 createdAt: order.createdAt,
             };
@@ -32,6 +33,7 @@ class OrderRepository implements OrderRepositoryDomain {
         try {
             const items = orders.map(order => ({
                 id: order.id,
+                orderNumber: order.orderNumber,
                 status: order.status,
                 createdAt: order.createdAt,
             }));
@@ -45,6 +47,9 @@ class OrderRepository implements OrderRepositoryDomain {
 
    async getAll(filters?: Record<string, any>): Promise<Order[]> {
         try {
+            const counterFilter = 'id <> :counterKey';
+            const counterValue = { ':counterKey': 'ORDER_COUNTER' };
+
             if (filters?.status) {
                 const statuses = String(filters.status)
                     .split(',')
@@ -60,15 +65,18 @@ class OrderRepository implements OrderRepositoryDomain {
                 });
 
                 return await this.dynamoDBAdapter.scan<Order>(this.tableName, {
-                    filterExpression: `#status IN (${placeholders.join(', ')})`,
+                    filterExpression: `#status IN (${placeholders.join(', ')}) AND ${counterFilter}`,
                     expressionAttributeNames: {
                         '#status': 'status',
                     },
-                    expressionAttributeValues,
+                    expressionAttributeValues: { ...expressionAttributeValues, ...counterValue },
                 });
             }
 
-            return await this.dynamoDBAdapter.scan<Order>(this.tableName);
+            return await this.dynamoDBAdapter.scan<Order>(this.tableName, {
+                filterExpression: counterFilter,
+                expressionAttributeValues: counterValue,
+            });
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error fetching all orders`, error);
             throw new Error(`❌ ${this.constructor.name}: Error fetching all orders`);
@@ -89,6 +97,7 @@ class OrderRepository implements OrderRepositoryDomain {
         try {
             const orderData = {
                 id: order.id,
+                orderNumber: order.orderNumber,
                 status: order.status,
                 createdAt: order.createdAt,
             };
@@ -106,6 +115,21 @@ class OrderRepository implements OrderRepositoryDomain {
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error deleting order`, error);
             throw new Error(`❌ ${this.constructor.name}: Error deleting order`);
+        }
+    }
+
+    async getNextOrderNumber(count: number): Promise<number> {
+        try {
+            const lastNumber = await this.dynamoDBAdapter.atomicIncrement(
+                this.tableName,
+                { id: 'ORDER_COUNTER' },
+                'counter',
+                count,
+            );
+            return lastNumber;
+        } catch (error) {
+            console.error(`❌ ${this.constructor.name}: Error getting next order number`, error);
+            throw new Error(`❌ ${this.constructor.name}: Error getting next order number`);
         }
     }
 }

@@ -5,4 +5,5 @@ export interface DynamoDBAdapter {
     delete(tableName: string, key: Record<string, unknown>): Promise<void>;
     scan<T>(tableName: string, options?: { consistentRead?: boolean; filterExpression?: string; expressionAttributeNames?: Record<string, string>; expressionAttributeValues?: Record<string, unknown> }): Promise<T[]>;
     query<T>(tableName: string, keyCondition: string, expressionValues: Record<string, unknown>): Promise<T[]>;
+    atomicIncrement(tableName: string, key: Record<string, unknown>, counterField: string, incrementBy: number): Promise<number>;
 }

@@ -21,10 +21,14 @@ export class CreateOrderUseCase implements UseCase<Request, Order[]> {
     console.log('🚀 CreateOrderUseCase execute request', request);
 
     try {
+      const lastNumber = await this.orderRepository.getNextOrderNumber(request.numberOrders);
+      const startNumber = lastNumber - request.numberOrders + 1;
+
       let ordersData: Order[] = [];
       for (let i = 0; i < request.numberOrders; i++) {
         ordersData.push({
           id: uuidv4(),
+          orderNumber: startNumber + i,
           status: OrderStatus.PENDING,
           createdAt: new Date().toISOString(),
         });
@@ -42,7 +46,9 @@ export class CreateOrderUseCase implements UseCase<Request, Order[]> {
 
       console.log('📢 SNS: Orders published to topic', Env.SNS_ORDERS_CREATED_ARN);
 
-      return ordersData; 
+      const sortedOrders = [...ordersData].sort((a: Order, b: Order) => b.orderNumber - a.orderNumber);
+
+      return sortedOrders; 
     } catch (error) {
       console.error(`❌ ${this.constructor.name}: Error creating orders`, error);
       throw new Error(`❌ ${this.constructor.name}: Error creating orders`);

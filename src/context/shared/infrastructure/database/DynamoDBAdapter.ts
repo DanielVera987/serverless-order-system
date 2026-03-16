@@ -1,5 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand, PutCommand, DeleteCommand, ScanCommand, QueryCommand, BatchWriteCommand, BatchWriteCommandOutput } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, GetCommand, PutCommand, DeleteCommand, ScanCommand, QueryCommand, BatchWriteCommand, BatchWriteCommandOutput, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { DynamoDBAdapter as DynamoDBAdapterDomain } from '../../domain/database/DynamoDBAdapter';
 import { Injectable } from '../di';
 
@@ -86,5 +86,18 @@ export class DynamoDBAdapter implements DynamoDBAdapterDomain {
       ExpressionAttributeValues: expressionValues,
     }));
     return (result.Items as T[]) ?? [];
+  }
+
+  async atomicIncrement(tableName: string, key: Record<string, unknown>, counterField: string, incrementBy: number): Promise<number> {
+    const result = await this.client.send(new UpdateCommand({
+      TableName: tableName,
+      Key: key,
+      UpdateExpression: `ADD #counter :inc`,
+      ExpressionAttributeNames: { '#counter': counterField },
+      ExpressionAttributeValues: { ':inc': incrementBy },
+      ReturnValues: 'UPDATED_NEW',
+    }));
+
+    return result.Attributes![counterField] as number;
   }
 }

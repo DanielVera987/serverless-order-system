@@ -4,6 +4,7 @@ export interface SQSMessageRequest {
 
 export default interface Order {
     id: string;
+    orderNumber: number;
     status: string;
     createdAt: string;
 }

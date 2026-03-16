@@ -7,4 +7,5 @@ export default interface OrderRepository {
   getAll(filters?: Record<any, any>): Promise<Order[]>;
   update(order: Order): Promise<Order>;
   delete(id: string): Promise<void>;
+  getNextOrderNumber(count: number): Promise<number>;
 }

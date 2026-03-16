@@ -2,6 +2,7 @@ import Ingredient from "./Ingredient";
 
 export default interface Order {
   id: string;
+  orderNumber: number;
   status: string;
   createdAt: string;
   updatedAt?: string;

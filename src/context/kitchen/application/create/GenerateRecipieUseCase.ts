@@ -35,6 +35,7 @@ export default class GenerateRecipieUseCase implements UseCase<SQSMessageRequest
 
       await this.orderRepository.update({
         id: order.id,
+        orderNumber: order.orderNumber,
         status: OrderStatus.PREPARING,
         recipeId: recipe.id,
         recipeName: recipe.name,
