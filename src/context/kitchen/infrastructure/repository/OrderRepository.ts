@@ -16,6 +16,7 @@ export default class OrderRepository implements OrderRepositoryDomain {
         try {
             const orderData = {
                 id: order.id,
+                entityType: 'ORDER',
                 orderNumber: order.orderNumber,
                 status: order.status,
                 recipeId: order.recipeId,
