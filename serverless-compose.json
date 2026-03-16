@@ -8,6 +8,9 @@
     },
     "warehouse": {
       "path": "src/services/warehouse"
+    },
+    "artificial-intelligence": {
+      "path": "src/services/artificial-intelligence"
     }
   }
 }

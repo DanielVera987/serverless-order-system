@@ -1,4 +1,8 @@
+import path from 'path';
+import dotenv from 'dotenv';
 import type { AWS } from '@serverless/typescript';
+
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 type DeepPartial<T> = { [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K] };
 
@@ -52,6 +56,7 @@ export function createService(
   options?: {
     resources?: DeepPartial<AWS['resources']>;
     iamStatements?: IamStatement[];
+    environment?: Record<string, string>;
   },
 ): AWS {
   const statements = [...baseStatements, ...(options?.iamStatements ?? [])];
@@ -66,6 +71,7 @@ export function createService(
           statements,
         },
       },
+      ...(options?.environment && { environment: options.environment }),
     },
     functions,
     ...(options?.resources && { resources: options.resources }),
