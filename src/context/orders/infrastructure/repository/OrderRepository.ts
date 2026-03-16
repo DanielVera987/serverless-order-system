@@ -43,32 +43,32 @@ class OrderRepository implements OrderRepositoryDomain {
         }
     }
 
-   async getAll(filters?: Record<any, any>): Promise<Order[]> {
+   async getAll(filters?: Record<string, any>): Promise<Order[]> {
         try {
             if (filters?.status) {
+                const statuses = String(filters.status)
+                    .split(',')
+                    .map((s: string) => s.trim().toLowerCase());
 
-            const statuses = filters.status.split(',');
+                const expressionAttributeValues: Record<string, string> = {};
+                const placeholders: string[] = [];
 
-            const expressionAttributeValues: Record<string, any> = {};
-            const placeholders: string[] = [];
+                statuses.forEach((status, index) => {
+                    const key = `:status${index}`;
+                    expressionAttributeValues[key] = status;
+                    placeholders.push(key);
+                });
 
-            statuses.forEach((status: string, index: number) => {
-                const key = `:status${index}`;
-                expressionAttributeValues[key] = status.toUpperCase();
-                placeholders.push(key);
-            });
-
-            return await this.dynamoDBAdapter.scan<Order>(this.tableName, {
-                filterExpression: `#status IN (${placeholders.join(', ')})`,
-                expressionAttributeNames: {
-                '#status': 'status',
-                },
-                expressionAttributeValues,
-            });
-
-            } else {
-            return await this.dynamoDBAdapter.scan<Order>(this.tableName);
+                return await this.dynamoDBAdapter.scan<Order>(this.tableName, {
+                    filterExpression: `#status IN (${placeholders.join(', ')})`,
+                    expressionAttributeNames: {
+                        '#status': 'status',
+                    },
+                    expressionAttributeValues,
+                });
             }
+
+            return await this.dynamoDBAdapter.scan<Order>(this.tableName);
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error fetching all orders`, error);
             throw new Error(`❌ ${this.constructor.name}: Error fetching all orders`);
