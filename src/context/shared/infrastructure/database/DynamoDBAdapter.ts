@@ -1,6 +1,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, PutCommand, DeleteCommand, ScanCommand, QueryCommand, BatchWriteCommand, BatchWriteCommandOutput, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { DynamoDBAdapter as DynamoDBAdapterDomain } from '../../domain/database/DynamoDBAdapter';
+import { DynamoDBAdapter as DynamoDBAdapterDomain, ScanPageOptions, QueryPageOptions } from '../../domain/database/DynamoDBAdapter';
+import { PaginatedResult } from '../../domain/database/PaginatedResult';
 import { Injectable } from '../di';
 
 @Injectable()
@@ -69,23 +70,115 @@ export class DynamoDBAdapter implements DynamoDBAdapterDomain {
   }
 
   async scan<T>(tableName: string, options?: { consistentRead?: boolean; filterExpression?: string; expressionAttributeNames?: Record<string, string>; expressionAttributeValues?: Record<string, unknown> }): Promise<T[]> {
-    const result = await this.client.send(new ScanCommand({
-      TableName: tableName,
-      ConsistentRead: options?.consistentRead,
-      FilterExpression: options?.filterExpression,
-      ExpressionAttributeNames: options?.expressionAttributeNames,
-      ExpressionAttributeValues: options?.expressionAttributeValues,
-    }));
-    return (result.Items as T[]) ?? [];
+    const allItems: T[] = [];
+    let lastEvaluatedKey: Record<string, unknown> | undefined;
+
+    do {
+      const result = await this.client.send(new ScanCommand({
+        TableName: tableName,
+        ConsistentRead: options?.consistentRead,
+        FilterExpression: options?.filterExpression,
+        ExpressionAttributeNames: options?.expressionAttributeNames,
+        ExpressionAttributeValues: options?.expressionAttributeValues,
+        ExclusiveStartKey: lastEvaluatedKey,
+      }));
+
+      allItems.push(...(result.Items as T[]) ?? []);
+      lastEvaluatedKey = result.LastEvaluatedKey;
+    } while (lastEvaluatedKey);
+
+    return allItems;
+  }
+
+  async scanPage<T>(tableName: string, options: ScanPageOptions): Promise<PaginatedResult<T>> {
+    const collectedItems: T[] = [];
+    let currentKey: Record<string, unknown> | undefined = options.nextToken
+      ? JSON.parse(Buffer.from(options.nextToken, 'base64url').toString())
+      : undefined;
+
+    while (collectedItems.length < options.limit) {
+      const remaining = options.limit - collectedItems.length;
+
+      const result = await this.client.send(new ScanCommand({
+        TableName: tableName,
+        Limit: remaining,
+        ConsistentRead: options.consistentRead,
+        FilterExpression: options.filterExpression,
+        ExpressionAttributeNames: options.expressionAttributeNames,
+        ExpressionAttributeValues: options.expressionAttributeValues,
+        ExclusiveStartKey: currentKey,
+      }));
+
+      collectedItems.push(...(result.Items as T[]) ?? []);
+      currentKey = result.LastEvaluatedKey;
+
+      if (!currentKey) break;
+    }
+
+    const nextToken = currentKey
+      ? Buffer.from(JSON.stringify(currentKey)).toString('base64url')
+      : null;
+
+    return {
+      items: collectedItems.slice(0, options.limit),
+      nextToken,
+    };
+  }
+
+  async queryPage<T>(tableName: string, options: QueryPageOptions): Promise<PaginatedResult<T>> {
+    const collectedItems: T[] = [];
+    let currentKey: Record<string, unknown> | undefined = options.nextToken
+      ? JSON.parse(Buffer.from(options.nextToken, 'base64url').toString())
+      : undefined;
+
+    while (collectedItems.length < options.limit) {
+      const remaining = options.limit - collectedItems.length;
+
+      const result = await this.client.send(new QueryCommand({
+        TableName: tableName,
+        IndexName: options.indexName,
+        KeyConditionExpression: options.keyConditionExpression,
+        ExpressionAttributeValues: options.expressionAttributeValues,
+        ExpressionAttributeNames: options.expressionAttributeNames,
+        FilterExpression: options.filterExpression,
+        ScanIndexForward: options.scanIndexForward,
+        Limit: remaining,
+        ExclusiveStartKey: currentKey,
+      }));
+
+      collectedItems.push(...(result.Items as T[]) ?? []);
+      currentKey = result.LastEvaluatedKey;
+
+      if (!currentKey) break;
+    }
+
+    const nextToken = currentKey
+      ? Buffer.from(JSON.stringify(currentKey)).toString('base64url')
+      : null;
+
+    return {
+      items: collectedItems.slice(0, options.limit),
+      nextToken,
+    };
   }
 
   async query<T>(tableName: string, keyCondition: string, expressionValues: Record<string, unknown>): Promise<T[]> {
-    const result = await this.client.send(new QueryCommand({
-      TableName: tableName,
-      KeyConditionExpression: keyCondition,
-      ExpressionAttributeValues: expressionValues,
-    }));
-    return (result.Items as T[]) ?? [];
+    const allItems: T[] = [];
+    let lastEvaluatedKey: Record<string, unknown> | undefined;
+
+    do {
+      const result = await this.client.send(new QueryCommand({
+        TableName: tableName,
+        KeyConditionExpression: keyCondition,
+        ExpressionAttributeValues: expressionValues,
+        ExclusiveStartKey: lastEvaluatedKey,
+      }));
+
+      allItems.push(...(result.Items as T[]) ?? []);
+      lastEvaluatedKey = result.LastEvaluatedKey;
+    } while (lastEvaluatedKey);
+
+    return allItems;
   }
 
   async atomicIncrement(tableName: string, key: Record<string, unknown>, counterField: string, incrementBy: number): Promise<number> {

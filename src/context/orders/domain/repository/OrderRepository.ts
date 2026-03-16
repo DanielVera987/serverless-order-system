@@ -1,10 +1,12 @@
 import Order from '../entity/Order';
+import { PaginatedResult } from '../../../shared/domain/database/PaginatedResult';
+import GetOrdersRequest from '../ports/GetOrdersRequest';
 
 export default interface OrderRepository {
   create(order: Order): Promise<Order>;
   createBulk(orders: Order[]): Promise<Order[]>;
   get(id: string): Promise<Order | null>;
-  getAll(filters?: Record<any, any>): Promise<Order[]>;
+  getAll(params?: GetOrdersRequest): Promise<PaginatedResult<Order>>;
   update(order: Order): Promise<Order>;
   delete(id: string): Promise<void>;
   getNextOrderNumber(count: number): Promise<number>;

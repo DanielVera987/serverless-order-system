@@ -1,6 +1,8 @@
 import types from '../../types';
 import { UseCase } from '../../../../../../context/shared/domain/UseCase';
 import Order from '../../../../../../context/orders/domain/entity/Order';
+import { PaginatedResult } from '../../../../../../context/shared/domain/database/PaginatedResult';
+import GetOrdersRequest from '../../../../../../context/orders/domain/ports/GetOrdersRequest';
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { Injectable, Inject } from '../../../../../../context/shared/infrastructure/di';
 import { ApiGatewayHandler } from '../../../../../../context/shared/infrastructure/controller/ControllerBase';
@@ -8,20 +10,29 @@ import { ApiGatewayHandler } from '../../../../../../context/shared/infrastructu
 @Injectable()
 export class ApiGatewayController implements ApiGatewayHandler {
   constructor(
-    @Inject(types.GetOrdersUseCase) private readonly getOrdersUseCase: UseCase<any, Order[]>
+    @Inject(types.GetOrdersUseCase) private readonly getOrdersUseCase: UseCase<GetOrdersRequest, PaginatedResult<Order>>
   ) {}
 
   async handle(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
     try {
-      const status = event.queryStringParameters?.status;
-      const filters = status ? { status } : {};
+      let { status, limit, nextToken } = event.queryStringParameters ?? {};
 
-      const orders = await this.getOrdersUseCase.execute(filters);
+      if (!limit) {
+        limit = '100';
+      }
 
-      if (!orders) {
+      const request: GetOrdersRequest = {
+        status,
+        limit: Number(limit),
+        nextToken,
+      };
+
+      const result = await this.getOrdersUseCase.execute(request);
+
+      if (!result.items.length && !request.nextToken) {
         return {
           statusCode: 404,
-          body: JSON.stringify({ message: 'No orders found', data: {} }),
+          body: JSON.stringify({ message: 'No orders found', data: [] }),
         };
       }
 
@@ -29,7 +40,11 @@ export class ApiGatewayController implements ApiGatewayHandler {
         statusCode: 200,
         body: JSON.stringify({
           message: 'Orders retrieved successfully',
-          data: orders,
+          data: result.items,
+          pagination: {
+            nextToken: result.nextToken,
+            limit: request.limit ?? 100,
+          },
         }),
       };
     } catch (error) {
@@ -37,7 +52,7 @@ export class ApiGatewayController implements ApiGatewayHandler {
 
       return {
         statusCode: 500,
-        body: JSON.stringify({ message: 'Internal Server Error', data: {} }),
+        body: JSON.stringify({ message: 'Internal Server Error', data: [] }),
       };
     }
   }

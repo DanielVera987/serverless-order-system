@@ -1,13 +1,19 @@
 import OrderRepositoryDomain from '../../domain/repository/OrderRepository';
 import { DynamoDBAdapter } from "../../../shared/domain/database/DynamoDBAdapter"
+import { PaginatedResult } from '../../../shared/domain/database/PaginatedResult';
 import { Injectable, Inject } from '../../../shared/infrastructure/di';
 import TypesShared from '../../../shared/SharedTypes';
 import Order from '../../domain/entity/Order';
+import GetOrdersRequest from '../../domain/ports/GetOrdersRequest';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 class OrderRepository implements OrderRepositoryDomain {
     private readonly tableName = process.env.ORDERS_TABLE ?? 'orders';
+    private static readonly GSI_NAME = 'orderNumber-index';
+    private static readonly ENTITY_TYPE = 'ORDER';
+    private static readonly DEFAULT_LIMIT = 100;
+    private static readonly MAX_LIMIT = 500;
 
     constructor(
         @Inject(TypesShared.DynamoDBAdapter) private readonly dynamoDBAdapter: DynamoDBAdapter
@@ -17,6 +23,7 @@ class OrderRepository implements OrderRepositoryDomain {
         try {
             const orderData = {
                 id: uuidv4(),
+                entityType: OrderRepository.ENTITY_TYPE,
                 orderNumber: order.orderNumber,
                 status: order.status,
                 createdAt: order.createdAt,
@@ -33,6 +40,7 @@ class OrderRepository implements OrderRepositoryDomain {
         try {
             const items = orders.map(order => ({
                 id: order.id,
+                entityType: OrderRepository.ENTITY_TYPE,
                 orderNumber: order.orderNumber,
                 status: order.status,
                 createdAt: order.createdAt,
@@ -45,37 +53,42 @@ class OrderRepository implements OrderRepositoryDomain {
         }
     }
 
-   async getAll(filters?: Record<string, any>): Promise<Order[]> {
+    async getAll(params?: GetOrdersRequest): Promise<PaginatedResult<Order>> {
         try {
-            const counterFilter = 'id <> :counterKey';
-            const counterValue = { ':counterKey': 'ORDER_COUNTER' };
+            const limit = Math.min(params?.limit ?? OrderRepository.DEFAULT_LIMIT, OrderRepository.MAX_LIMIT);
+            const nextToken = params?.nextToken ?? undefined;
 
-            if (filters?.status) {
-                const statuses = String(filters.status)
+            const expressionAttributeValues: Record<string, unknown> = {
+                ':entityType': OrderRepository.ENTITY_TYPE,
+            };
+            const expressionAttributeNames: Record<string, string> = {};
+            let filterExpression: string | undefined;
+
+            if (params?.status) {
+                const statuses = String(params.status)
                     .split(',')
                     .map((s: string) => s.trim().toLowerCase());
 
-                const expressionAttributeValues: Record<string, string> = {};
                 const placeholders: string[] = [];
-
                 statuses.forEach((status, index) => {
                     const key = `:status${index}`;
                     expressionAttributeValues[key] = status;
                     placeholders.push(key);
                 });
 
-                return await this.dynamoDBAdapter.scan<Order>(this.tableName, {
-                    filterExpression: `#status IN (${placeholders.join(', ')}) AND ${counterFilter}`,
-                    expressionAttributeNames: {
-                        '#status': 'status',
-                    },
-                    expressionAttributeValues: { ...expressionAttributeValues, ...counterValue },
-                });
+                expressionAttributeNames['#status'] = 'status';
+                filterExpression = `#status IN (${placeholders.join(', ')})`;
             }
 
-            return await this.dynamoDBAdapter.scan<Order>(this.tableName, {
-                filterExpression: counterFilter,
-                expressionAttributeValues: counterValue,
+            return await this.dynamoDBAdapter.queryPage<Order>(this.tableName, {
+                indexName: OrderRepository.GSI_NAME,
+                limit,
+                nextToken,
+                keyConditionExpression: 'entityType = :entityType',
+                expressionAttributeValues,
+                ...(filterExpression && { filterExpression }),
+                ...(Object.keys(expressionAttributeNames).length > 0 && { expressionAttributeNames }),
+                scanIndexForward: false,
             });
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error fetching all orders`, error);
@@ -97,6 +110,7 @@ class OrderRepository implements OrderRepositoryDomain {
         try {
             const orderData = {
                 id: order.id,
+                entityType: OrderRepository.ENTITY_TYPE,
                 orderNumber: order.orderNumber,
                 status: order.status,
                 createdAt: order.createdAt,
