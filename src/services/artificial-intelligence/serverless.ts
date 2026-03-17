@@ -1,10 +1,12 @@
 import type { AWS } from '@serverless/typescript';
 import { createService } from '../serverless.base';
 import { functions } from './index';
+import { resources } from './resources/index';
 
 const serverless = {
   service: 'restaurant-artificial-intelligence',
   functions: functions as unknown as AWS['functions'],
+  resources: resources as AWS['resources'],
   iamStatements: [
     {
       Effect: 'Allow',
@@ -26,6 +28,7 @@ module.exports = createService(
   serverless.service,
   serverless.functions,
   {
+    resources: serverless.resources,
     iamStatements: serverless.iamStatements,
     environment: {
       GROQ_API_URL: process.env.GROQ_API_URL ?? '',

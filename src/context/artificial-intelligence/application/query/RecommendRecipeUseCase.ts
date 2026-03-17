@@ -4,12 +4,15 @@ import AI, { AIMessage } from '../../../shared/domain/artificial-intelligence/ai
 import TypesShared from '../../../shared/SharedTypes';
 import types from '../../../../services/artificial-intelligence/functions/recommendRecipe/types';
 import IngredientsRepositoryDomain from '../../domain/repository/IngredientsRepository';
+import Recipe from '../../../kitchen/domain/entity/Recipe';
+import RecipeRepositoryDomain from '../../domain/repository/RecipeRepository';
 
 @Injectable()
 export default class RecommendRecipeUseCase implements UseCase<string, string> {
   constructor(
     @Inject(TypesShared.AI) private readonly ai: AI,
-    @Inject(types.IngredientsRepository) private readonly ingredientsRepository: IngredientsRepositoryDomain
+    @Inject(types.IngredientsRepository) private readonly ingredientsRepository: IngredientsRepositoryDomain,
+    @Inject(types.RecipeRepository) private readonly recipeRepository: RecipeRepositoryDomain
   ) {}
 
   async execute(request: string): Promise<string> {
@@ -26,9 +29,13 @@ export default class RecommendRecipeUseCase implements UseCase<string, string> {
       temperature: 0.5
     });
 
-    console.log('🚀 RecommendRecipeUseCase response', JSON.parse(response));
+    const responseData = JSON.parse(response);
 
-    return JSON.parse(response);
+    console.log('🚀 RecommendRecipeUseCase response', responseData);
+
+    await this.saveRecipes(responseData.recipes);
+
+    return responseData;
   }
 
   private async getSystemPrompt(): Promise<string> {
@@ -55,5 +62,31 @@ export default class RecommendRecipeUseCase implements UseCase<string, string> {
       ]
     }
     `;
+  }
+
+  private async saveRecipes(recipes: Recipe[]): Promise<void> {
+    try {
+      const recipesToSave = [];
+
+      for (let i = 0; i < recipes.length; i++) {
+        recipesToSave.push({
+          id: `recipe-${i + 1}`,
+          name: recipes[i].name,
+          ingredients: recipes[i].ingredients.map(ingredient => ({
+            name: ingredient.name,
+            quantity: ingredient.quantity
+          })),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+      }
+
+      console.log('🔵 RecommendRecipeUseCase: recipesToSave', recipesToSave);
+
+      await this.recipeRepository.createBulk(recipesToSave);
+    } catch (error) {
+      console.error(`❌ ${this.constructor.name}: Error saving recipes`, error);
+      throw new Error(`❌ ${this.constructor.name}: Error saving recipes`);
+    }
   }
 }

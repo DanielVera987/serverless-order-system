@@ -11,6 +11,11 @@ import { UseCase } from '../../../../context/shared/domain/UseCase';
 import RecommendRecipeUseCase from '../../../../context/artificial-intelligence/application/query/RecommendRecipeUseCase';
 import Http from '../../../../context/shared/domain/http/Http';
 import HttpAxios from '../../../../context/shared/infrastructure/http/HttpAxios';
+import RecipeRepository from '../../../../context/artificial-intelligence/infrastructure/repository/RecipeRepository';
+import RecipeRepositoryDomain from '../../../../context/artificial-intelligence/domain/repository/RecipeRepository';
+import { DynamoDBAdapter as DynamoDBAdapterDomain } from '../../../../context/shared/domain/database/DynamoDBAdapter';
+import { DynamoDBAdapter } from '../../../../context/shared/infrastructure/database/DynamoDBAdapter';
+
 
 const container = new Container();
 
@@ -19,5 +24,7 @@ container.bind<AI>(TypesShared.AI).to(GroqAI);
 container.bind<Http>(TypesShared.Http).to(HttpAxios);
 container.bind<UseCase<string, string>>(types.RecommendRecipeUseCase).to(RecommendRecipeUseCase);
 container.bind<IngredientsRepositoryDomain>(types.IngredientsRepository).to(IngredientsRepository);
+container.bind<RecipeRepositoryDomain>(types.RecipeRepository).to(RecipeRepository);
+container.bind<DynamoDBAdapterDomain>(TypesShared.DynamoDBAdapter).to(DynamoDBAdapter);
 
 export default container;
