@@ -1,4 +1,5 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult, SQSEvent, SQSRecord } from 'aws-lambda';
+import { withCors } from '../cors/CorsMiddleware';
 
 export interface SQSBody {
   Type: string;
@@ -44,7 +45,7 @@ export class ControllerBase {
       console.log('🔵 ApiGatewayController Started', this.controllers.api.constructor.name);
       const result = await this.controllers.api.handle(event);
       console.log('✅ ApiGatewayController Finished');
-      return result;
+      return withCors(event, result);
     }
   
     if (this.isSqs(event) && this.controllers.sqs) {

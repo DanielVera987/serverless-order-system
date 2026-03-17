@@ -1,4 +1,5 @@
 import Config from '../../config/Config';
+import { corsConfig } from '../../../serverless.base';
 
 const lambda = {
   handler: 'functions/postIngredient/handler.postIngredient',
@@ -11,7 +12,7 @@ const lambda = {
       http: { 
         path: '/ingredient', 
         method: 'post', 
-        cors: true 
+        cors: corsConfig,
       } 
     }
   ],

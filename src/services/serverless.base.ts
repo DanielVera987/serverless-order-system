@@ -1,6 +1,7 @@
 import path from 'path';
 import dotenv from 'dotenv';
 import type { AWS } from '@serverless/typescript';
+import allowedOrigins from '../context/shared/infrastructure/cors/allowedOrigins';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
@@ -23,6 +24,18 @@ const baseStatements: IamStatement[] = [
     Resource: '*',
   },
 ];
+
+export const corsConfig = {
+  origin: '*',
+  headers: [
+    'Content-Type',
+    'Authorization',
+    'X-Api-Key',
+    'X-Amz-Date',
+    'X-Amz-Security-Token',
+  ],
+  allowCredentials: false,
+};
 
 export const baseConfig: DeepPartial<AWS> = {
   frameworkVersion: '3',

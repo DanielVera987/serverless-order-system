@@ -1,4 +1,5 @@
 import Config from '../../config/Config';
+import { corsConfig } from '../../../serverless.base';
 
 const lambda = {
   handler: 'functions/recommendRecipe/handler.recommendRecipe',
@@ -11,7 +12,7 @@ const lambda = {
       http: { 
         path: '/recommend-recipe', 
         method: 'get', 
-        cors: true 
+        cors: corsConfig,
       } 
     }
   ],

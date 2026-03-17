@@ -1,4 +1,5 @@
 import Config from "../../config/Config";
+import { corsConfig } from '../../../serverless.base';
 
 const lambda = {
     handler: 'functions/getPurchases/handler.getPurchases',
@@ -11,7 +12,7 @@ const lambda = {
             http: {
                 path: '/purchases',
                 method: 'get',
-                cors: true,
+                cors: corsConfig,
             },
         },
     ],
