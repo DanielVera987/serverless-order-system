@@ -9,6 +9,7 @@ import TypesShared from '../../../shared/SharedTypes';
 import { NotificationPublisher } from '../../../shared/domain/notification/NotificationPublisher';
 import Env from '../../../../services/kitchen/config/Environment';
 import { OrderStatus } from '../../../shared/domain/enums/OrderEnums';
+import RecipeRepositoryDomain from '../../domain/repository/RecipeRepository';
 
 interface OrderWithRecipe {
   orderId: string;
@@ -25,17 +26,20 @@ export default class GenerateRecipieUseCase implements UseCase<SQSMessageRequest
   constructor(
     @Inject(types.OrderRepository) private readonly orderRepository: OrderRepository,
     @Inject(TypesShared.NotificationPublisher) private readonly notificationPublisher: NotificationPublisher,
+    @Inject(types.RecipeRepository) private readonly recipeRepository: RecipeRepositoryDomain,
   ) {}
 
   async execute(request: SQSMessageRequest): Promise<OrderWithRecipe[]> {
     console.log('🚀 GenerateRecipieUseCase execute request', request);
   
     const batchId = Date.now();
+    const recipes = await this.recipeRepository.getAll();
+
     const assignments = await this.processWithConcurrency(
       request.Orders,
       ORDER_UPDATE_CONCURRENCY,
       async (order) => {
-        const recipe = getRandomRecipe();
+        const recipe = recipes[Math.floor(Math.random() * recipes.length)];
   
         console.log(`🍽️ Order ${order.id} → Recipe: ${recipe.name}`);
   
