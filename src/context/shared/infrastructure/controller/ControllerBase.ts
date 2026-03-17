@@ -40,25 +40,28 @@ export class ControllerBase {
   }
 
   async execute(event: unknown): Promise<unknown> {
-    console.log('🚀 Init ControllerBase execute event', event);
-
     if (this.isApiGateway(event) && this.controllers.api) {
       console.log('🔵 ApiGatewayController Started', this.controllers.api.constructor.name);
       const result = await this.controllers.api.handle(event);
       console.log('✅ ApiGatewayController Finished');
       return result;
     }
-
+  
     if (this.isSqs(event) && this.controllers.sqs) {
+      const records = (event as SQSEvent).Records;
+  
       console.log('🔵 SQSController Started', this.controllers.sqs.constructor.name);
-      for (const record of (event as SQSEvent).Records) {
+      console.log(`📦 SQS Records count: ${records.length}`);
+  
+      for (const record of records) {
         const body = JSON.parse(record.body);
-        await this.controllers.sqs.handleRecord(record, body);
+        await this.controllers.sqs!.handleRecord(record, body);
       }
+  
       console.log('✅ SQSController Finished');
       return;
     }
-
+  
     throw new Error(`❌ No controller registered for this event type`);
   }
 }

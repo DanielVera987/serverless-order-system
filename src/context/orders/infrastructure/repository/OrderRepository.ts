@@ -37,6 +37,8 @@ class OrderRepository implements OrderRepositoryDomain {
     }
 
     async createBulk(orders: Order[]): Promise<Order[]> {
+        console.log(`🔍 ${this.constructor.name}: Creating orders in bulk from ${this.tableName}`);
+
         try {
             const items = orders.map(order => ({
                 id: order.id,
@@ -46,7 +48,11 @@ class OrderRepository implements OrderRepositoryDomain {
                 createdAt: order.createdAt,
             }));
 
-            return await this.dynamoDBAdapter.createBulk(this.tableName, items);
+            const createdOrders = await this.dynamoDBAdapter.createBulk(this.tableName, items);
+
+            console.log(`✅ ${this.constructor.name}: Created ${createdOrders.length} orders in bulk`);
+
+            return createdOrders;
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error creating orders in bulk`, error);
             throw new Error(`❌ ${this.constructor.name}: Error creating orders in bulk`);

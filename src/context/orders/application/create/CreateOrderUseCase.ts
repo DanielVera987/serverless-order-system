@@ -23,35 +23,88 @@ export class CreateOrderUseCase implements UseCase<Request, Order[]> {
     try {
       const lastNumber = await this.orderRepository.getNextOrderNumber(request.numberOrders);
       const startNumber = lastNumber - request.numberOrders + 1;
-
-      let ordersData: Order[] = [];
-      for (let i = 0; i < request.numberOrders; i++) {
-        ordersData.push({
-          id: uuidv4(),
-          orderNumber: startNumber + i,
-          status: OrderStatus.PENDING,
-          createdAt: new Date().toISOString(),
-        });
-      }
-
+  
+      const ordersData = this.createOrdersData(request.numberOrders, startNumber);
+  
       await this.orderRepository.createBulk(ordersData);
-
       console.log('📊 CreateOrderUseCase orders', ordersData);
-
-      await this.notificationPublisher.publish(
-        Env.SNS_ORDERS_CREATED_ARN, 
-        'orders-created-group-' + Date.now(),
-        ordersData
-      );
-
-      console.log('📢 SNS: Orders published to topic', Env.SNS_ORDERS_CREATED_ARN);
-
-      const sortedOrders = [...ordersData].sort((a: Order, b: Order) => b.orderNumber - a.orderNumber);
-
-      return sortedOrders; 
+  
+      const chunks = this.chunkOrdersForSNS(ordersData);
+  
+      await this.publishChunks(chunks);
+  
+      return this.sortOrdersDesc(ordersData);
+  
     } catch (error) {
       console.error(`❌ ${this.constructor.name}: Error creating orders`, error);
       throw new Error(`❌ ${this.constructor.name}: Error creating orders`);
     }
+  }
+
+  private createOrdersData(count: number, startNumber: number): Order[] {
+    const orders: Order[] = [];
+  
+    for (let i = 0; i < count; i++) {
+      orders.push({
+        id: uuidv4(),
+        orderNumber: startNumber + i,
+        status: OrderStatus.PENDING,
+        createdAt: new Date().toISOString(),
+      });
+    }
+  
+    return orders;
+  }
+
+  private chunkOrdersForSNS(orders: Order[]): Order[][] {
+    const SNS_MAX_BYTES = 256 * 1024;
+    const SAFETY_MARGIN = 5 * 1024;
+    const MAX_CHUNK_BYTES = SNS_MAX_BYTES - SAFETY_MARGIN;
+  
+    const chunks: Order[][] = [];
+    let currentChunk: Order[] = [];
+    let currentSize = 0;
+  
+    for (const order of orders) {
+      const orderString = JSON.stringify(order);
+      const orderBytes = Buffer.byteLength(orderString, 'utf8');
+  
+      if (currentSize + orderBytes > MAX_CHUNK_BYTES) {
+        chunks.push(currentChunk);
+        currentChunk = [order];
+        currentSize = orderBytes;
+      } else {
+        currentChunk.push(order);
+        currentSize += orderBytes;
+      }
+    }
+  
+    if (currentChunk.length) {
+      chunks.push(currentChunk);
+    }
+  
+    console.log(`📦 Total SNS chunks: ${chunks.length}`);
+  
+    return chunks;
+  }
+
+  private async publishChunks(chunks: Order[][]): Promise<void> {
+    const batchId = Date.now();
+  
+    await Promise.all(
+      chunks.map((chunk, index) =>
+        this.notificationPublisher.publish(
+          Env.SNS_ORDERS_CREATED_ARN,
+          `orders-created-group-${batchId}-${index}`,
+          chunk
+        )
+      )
+    );
+  
+    console.log(`📢 SNS: Published ${chunks.length} chunks`);
+  }
+
+  private sortOrdersDesc(orders: Order[]): Order[] {
+    return [...orders].sort((a, b) => b.orderNumber - a.orderNumber);
   }
 }

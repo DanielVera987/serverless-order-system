@@ -17,13 +17,13 @@ const lambda = {
     {
       sqs: {
         arn: SQS_RECIPE_PROCESS_ARN,
-        batchSize: 1,
+        batchSize: 10,
       },
     },
     {
       sqs: {
         arn: { 'Fn::GetAtt': ['SQSRestockQueue', 'Arn'] },
-        batchSize: 1,
+        batchSize: 10,
       },
     },
   ],

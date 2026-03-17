@@ -9,7 +9,7 @@ const SNSOrdersCreated = {
         Subscription: [
             {
                 Protocol: 'sqs',
-                Endpoint: { 'Fn::GetAtt': ['SQSOrdersProcess', 'Arn'] },
+                Endpoint: { 'Fn::GetAtt': ['SQSOrdersProcess', 'Arn'] }
             },
         ],
     },

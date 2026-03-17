@@ -8,6 +8,8 @@ const SQS_ORDERS_PROCESS_ARN = {
 const lambda = {
   handler: 'functions/generateRecipes/handler.generateRecipes',
   description: 'Generate recipes',
+  timeout: 120,
+  memorySize: 512,
   environment: {
     ORDERS_TABLE: 'restaurant-orders-${sls:stage}-orders',
     INGREDIENTS_TABLE: 'restaurant-kitchen-${sls:stage}-ingredients',
@@ -18,7 +20,7 @@ const lambda = {
     { 
       sqs: {
         arn: SQS_ORDERS_PROCESS_ARN,
-        batchSize: 1,
+        batchSize: 10,
       },
     }
   ],

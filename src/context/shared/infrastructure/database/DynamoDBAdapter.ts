@@ -22,6 +22,8 @@ export class DynamoDBAdapter implements DynamoDBAdapterDomain {
   }
 
   async createBulk<T extends Record<string, unknown>>(tableName: string, items: T[]): Promise<T[]> {
+    console.log(`🔍 ${this.constructor.name}: Creating bulk items in ${tableName}`);
+
     const MAX_BATCH_SIZE = 25; // AWS DynamoDB limit to 25 items per batch
     const MAX_RETRIES = 5; // Retry 5 times if unprocessed items are detected
 
@@ -192,5 +194,29 @@ export class DynamoDBAdapter implements DynamoDBAdapterDomain {
     }));
 
     return result.Attributes![counterField] as number;
+  }
+
+  async updateStockAtomic(
+    tableName: string,
+    key: Record<string, unknown>,
+    quantityField: string,
+    quantityToDeduct: number
+  ): Promise<boolean> {
+    try {
+      await this.client.send(new UpdateCommand({
+        TableName: tableName,
+        Key: key,
+        UpdateExpression: `SET ${quantityField} = ${quantityField} - :qty, updatedAt = :updatedAt`,
+        ConditionExpression: `${quantityField} >= :qty`,
+        ExpressionAttributeValues: {
+          ':qty': quantityToDeduct,
+          ':updatedAt': new Date().toISOString(),
+        },
+      }));
+      return true;
+    } catch (error: any) {
+      if (error.name === 'ConditionalCheckFailedException') return false;
+      throw error;
+    }
   }
 }

@@ -33,4 +33,5 @@ export interface DynamoDBAdapter {
     query<T>(tableName: string, keyCondition: string, expressionValues: Record<string, unknown>): Promise<T[]>;
     queryPage<T>(tableName: string, options: QueryPageOptions): Promise<PaginatedResult<T>>;
     atomicIncrement(tableName: string, key: Record<string, unknown>, counterField: string, incrementBy: number): Promise<number>;
+    updateStockAtomic(tableName: string, key: Record<string, unknown>, quantityField: string, quantityToDeduct: number): Promise<boolean>;
 }

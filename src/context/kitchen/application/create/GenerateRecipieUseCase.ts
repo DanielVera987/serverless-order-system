@@ -15,6 +15,11 @@ interface OrderWithRecipe {
   recipe: Recipe;
 }
 
+const SNS_MAX_BYTES = 256 * 1024;
+const SNS_SAFETY_MARGIN = 5 * 1024;
+const SNS_MAX_CHUNK_BYTES = SNS_MAX_BYTES - SNS_SAFETY_MARGIN;
+const ORDER_UPDATE_CONCURRENCY = Number(process.env.KITCHEN_ORDER_UPDATE_CONCURRENCY ?? 20);
+
 @Injectable()
 export default class GenerateRecipieUseCase implements UseCase<SQSMessageRequest, OrderWithRecipe[]> {
   constructor(
@@ -24,41 +29,97 @@ export default class GenerateRecipieUseCase implements UseCase<SQSMessageRequest
 
   async execute(request: SQSMessageRequest): Promise<OrderWithRecipe[]> {
     console.log('🚀 GenerateRecipieUseCase execute request', request);
+  
+    const batchId = Date.now();
+    const assignments = await this.processWithConcurrency(
+      request.Orders,
+      ORDER_UPDATE_CONCURRENCY,
+      async (order) => {
+        const recipe = getRandomRecipe();
+  
+        console.log(`🍽️ Order ${order.id} → Recipe: ${recipe.name}`);
+  
+        await this.orderRepository.update({
+          id: order.id,
+          orderNumber: order.orderNumber,
+          status: OrderStatus.PREPARING,
+          recipeId: recipe.id,
+          recipeName: recipe.name,
+          createdAt: order.createdAt,
+          updatedAt: new Date().toISOString(),
+        });
+  
+        return {
+          orderId: order.id,
+          recipe,
+        };
+      }
+    );
+  
+    console.log('📊 GenerateRecipieUseCase assignments count', assignments.length);
+    const chunks = this.chunkAssignmentsForSNS(assignments);
 
-    const assignments: OrderWithRecipe[] = [];
+    for (let index = 0; index < chunks.length; index++) {
+      const chunk = chunks[index];
+      await this.notificationPublisher.publish(
+        Env.SNS_RECIPE_CREATED_ARN,
+        `recipe-created-group-${batchId}-${index}`,
+        { assignments: chunk }
+      );
+    }
+  
+    console.log(`📢 SNS: Recipes published to topic ${Env.SNS_RECIPE_CREATED_ARN} in ${chunks.length} chunks`);
+  
+    return assignments;
+  }
 
-    for (const order of request.Orders) {
-      // TODO: Generate recipe with AI (OpenAI)
-      const recipe = getRandomRecipe();
+  private chunkAssignmentsForSNS(assignments: OrderWithRecipe[]): OrderWithRecipe[][] {
+    const chunks: OrderWithRecipe[][] = [];
+    let currentChunk: OrderWithRecipe[] = [];
+    let currentSize = 0;
 
-      console.log(`🍽️ Order ${order.id} → Recipe: ${recipe.name}`);
+    for (const assignment of assignments) {
+      const assignmentBytes = Buffer.byteLength(JSON.stringify(assignment), 'utf8');
 
-      await this.orderRepository.update({
-        id: order.id,
-        orderNumber: order.orderNumber,
-        status: OrderStatus.PREPARING,
-        recipeId: recipe.id,
-        recipeName: recipe.name,
-        createdAt: order.createdAt,
-        updatedAt: new Date().toISOString(),
-      });
-
-      assignments.push({
-        orderId: order.id,
-        recipe,
-      });
+      if (currentChunk.length > 0 && currentSize + assignmentBytes > SNS_MAX_CHUNK_BYTES) {
+        chunks.push(currentChunk);
+        currentChunk = [assignment];
+        currentSize = assignmentBytes;
+      } else {
+        currentChunk.push(assignment);
+        currentSize += assignmentBytes;
+      }
     }
 
-    console.log('📊 GenerateRecipieUseCase assignments', JSON.stringify(assignments));
+    if (currentChunk.length > 0) {
+      chunks.push(currentChunk);
+    }
 
-    await this.notificationPublisher.publish(
-      Env.SNS_RECIPE_CREATED_ARN,
-      'recipe-created-group-' + Date.now(),
-      assignments
+    return chunks;
+  }
+
+  private async processWithConcurrency<T, R>(
+    items: T[],
+    concurrency: number,
+    processor: (item: T, index: number) => Promise<R>
+  ): Promise<R[]> {
+    if (items.length === 0) return [];
+
+    const safeConcurrency = Math.max(1, Math.min(concurrency, items.length));
+    const results = new Array<R>(items.length);
+    let nextIndex = 0;
+
+    const worker = async () => {
+      while (nextIndex < items.length) {
+        const current = nextIndex++;
+        results[current] = await processor(items[current], current);
+      }
+    };
+
+    await Promise.all(
+      Array.from({ length: safeConcurrency }, () => worker())
     );
 
-    console.log('📢 SNS: Recipes published to topic', Env.SNS_RECIPE_CREATED_ARN);
-
-    return assignments;
+    return results;
   }
 }

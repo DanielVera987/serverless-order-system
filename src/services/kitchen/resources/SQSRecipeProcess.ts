@@ -14,7 +14,7 @@ export const SQSRecipeProcess = {
     Properties: {
         QueueName: Config.SQS_RECIPE_PROCESS_QUEUE,
         FifoQueue: true,
-        VisibilityTimeout: 30,
+        VisibilityTimeout: 180,
         RedrivePolicy: {
             deadLetterTargetArn: { 'Fn::GetAtt': ['SQSRecipeProcessDLQ', 'Arn'] },
             maxReceiveCount: 6,

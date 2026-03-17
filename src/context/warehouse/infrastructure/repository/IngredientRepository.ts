@@ -37,4 +37,13 @@ export default class IngredientRepository implements IngredientRepositoryDomain 
             throw new Error(`❌ ${this.constructor.name}: Error updating ingredient`);
         }
     }
+
+    async updateStockAtomic(id: string, quantityToDeduct: number): Promise<boolean> {
+        return this.dynamoDBAdapter.updateStockAtomic(
+            this.tableName,
+            { id },
+            'quantity',
+            quantityToDeduct
+        );
+    }
 }
