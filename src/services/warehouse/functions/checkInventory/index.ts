@@ -10,8 +10,8 @@ const lambda = {
   description: 'Check ingredient inventory for recipe assignments',
   environment: {
     INGREDIENTS_TABLE: 'restaurant-kitchen-${sls:stage}-ingredients',
-    SNS_ORDER_READY_ARN: { Ref: 'SNSOrderReady' },
-    SNS_INGREDIENTS_NEEDED_ARN: { Ref: 'SNSIngredientsNeeded' },
+    SNS_INVENTORY_READY_ARN: { Ref: 'SNSInventoryReady' },
+    SNS_INVENTORY_SHORTAGE_ARN: { Ref: 'SNSInventoryShortage' },
   },
   events: [
     {

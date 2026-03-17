@@ -78,3 +78,47 @@ export const RestockDLQAlarm = {
         AlarmActions: [{ Ref: 'SNSDLQAlarm' }],
     },
 };
+
+export const InventoryReadyDLQAlarm = {
+    Type: 'AWS::CloudWatch::Alarm',
+    Properties: {
+        AlarmName: '${self:service}-${self:provider.stage}-inventory-ready-dlq-alarm',
+        AlarmDescription: 'Messages in inventory-ready DLQ',
+        Namespace: 'AWS/SQS',
+        MetricName: 'ApproximateNumberOfMessagesVisible',
+        Dimensions: [
+            {
+                Name: 'QueueName',
+                Value: Config.SQS_INVENTORY_READY_DLQ,
+            },
+        ],
+        Statistic: 'Sum',
+        Period: 60,
+        EvaluationPeriods: 1,
+        Threshold: 1,
+        ComparisonOperator: 'GreaterThanOrEqualToThreshold',
+        AlarmActions: [{ Ref: 'SNSDLQAlarm' }],
+    },
+};
+
+export const InventoryShortageDLQAlarm = {
+    Type: 'AWS::CloudWatch::Alarm',
+    Properties: {
+        AlarmName: '${self:service}-${self:provider.stage}-inventory-shortage-dlq-alarm',
+        AlarmDescription: 'Messages in inventory-shortage DLQ',
+        Namespace: 'AWS/SQS',
+        MetricName: 'ApproximateNumberOfMessagesVisible',
+        Dimensions: [
+            {
+                Name: 'QueueName',
+                Value: Config.SQS_INVENTORY_SHORTAGE_DLQ,
+            },
+        ],
+        Statistic: 'Sum',
+        Period: 60,
+        EvaluationPeriods: 1,
+        Threshold: 1,
+        ComparisonOperator: 'GreaterThanOrEqualToThreshold',
+        AlarmActions: [{ Ref: 'SNSDLQAlarm' }],
+    },
+};
