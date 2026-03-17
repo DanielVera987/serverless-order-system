@@ -41,16 +41,12 @@ export default class PurchaseHistoryRepository implements PurchaseHistoryReposit
     async getAll(params?: GetPurchaseHistoryRequest): Promise<PaginatedResult<PurchaseHistory>> {
         try {
             const limit = Math.min(params?.limit ?? PurchaseHistoryRepository.DEFAULT_LIMIT, PurchaseHistoryRepository.MAX_LIMIT);
-            const nextToken = params?.nextToken ?? undefined;
-
-            console.log('🔵 PurchaseHistoryRepository: limit', limit);
-            console.log('🔵 PurchaseHistoryRepository: nextToken', nextToken);
 
             return await this.dynamoDBAdapter.queryPage<PurchaseHistory>(this.tableName, {
                 indexName: PurchaseHistoryRepository.GSI_NAME,
                 keyConditionExpression: 'entityType = :entityType',
                 limit,
-                nextToken,
+                nextToken: params?.nextToken ?? undefined,
                 expressionAttributeValues: {
                     ':entityType': PurchaseHistoryRepository.ENTITY_TYPE,
                 },
@@ -58,6 +54,21 @@ export default class PurchaseHistoryRepository implements PurchaseHistoryReposit
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error getting all purchase history`, error);
             throw new Error(`❌ ${this.constructor.name}: Error getting all purchase history`);
+        }
+    }
+
+    async count(_params?: GetPurchaseHistoryRequest): Promise<number> {
+        try {
+            return await this.dynamoDBAdapter.count(this.tableName, {
+                indexName: PurchaseHistoryRepository.GSI_NAME,
+                keyConditionExpression: 'entityType = :entityType',
+                expressionAttributeValues: {
+                    ':entityType': PurchaseHistoryRepository.ENTITY_TYPE,
+                },
+            });
+        } catch (error) {
+            console.error(`❌ ${this.constructor.name}: Error counting purchase history`, error);
+            throw new Error(`❌ ${this.constructor.name}: Error counting purchase history`);
         }
     }
 }

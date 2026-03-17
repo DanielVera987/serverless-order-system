@@ -15,10 +15,13 @@ export default class GetPurchasesUseCase implements UseCase<unknown, PaginatedRe
     async execute(params: GetPurchaseHistoryRequest): Promise<PaginatedResult<PurchaseHistory>> {
         console.log('🔵 GetPurchasesUseCase: params', params);
 
-        const result = await this.purchaseHistoryRepository.getAll(params);
+        const [result, total] = await Promise.all([
+            this.purchaseHistoryRepository.getAll(params),
+            this.purchaseHistoryRepository.count(params),
+        ]);
 
-        console.log('🔵 GetPurchasesUseCase: result', result);
+        console.log(`✅ GetPurchasesUseCase: fetched ${result.items.length} of ${total} purchases`);
 
-        return result;
+        return { ...result, total };
     }
 }
