@@ -23,6 +23,14 @@ export interface QueryPageOptions extends PaginationOptions {
     scanIndexForward?: boolean;
 }
 
+export interface CountOptions {
+    indexName?: string;
+    keyConditionExpression?: string;
+    expressionAttributeValues?: Record<string, unknown>;
+    expressionAttributeNames?: Record<string, string>;
+    filterExpression?: string;
+}
+
 export interface DynamoDBAdapter {
     get<T>(tableName: string, key: Record<string, unknown>): Promise<T | null>;
     createBulk<T extends Record<string, unknown>>(tableName: string, items: T[]): Promise<T[]>;
@@ -34,4 +42,5 @@ export interface DynamoDBAdapter {
     queryPage<T>(tableName: string, options: QueryPageOptions): Promise<PaginatedResult<T>>;
     atomicIncrement(tableName: string, key: Record<string, unknown>, counterField: string, incrementBy: number): Promise<number>;
     updateStockAtomic(tableName: string, key: Record<string, unknown>, quantityField: string, quantityToDeduct: number): Promise<boolean>;
+    count(tableName: string, options?: CountOptions): Promise<number>;
 }

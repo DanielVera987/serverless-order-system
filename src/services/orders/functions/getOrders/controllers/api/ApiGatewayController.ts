@@ -42,6 +42,7 @@ export class ApiGatewayController implements ApiGatewayHandler {
           message: 'Orders retrieved successfully',
           data: result.items,
           pagination: {
+            total: result.total,
             nextToken: result.nextToken,
             limit: request.limit ?? 100,
           },

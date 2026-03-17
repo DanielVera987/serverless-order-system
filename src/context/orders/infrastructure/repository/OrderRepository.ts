@@ -62,43 +62,34 @@ class OrderRepository implements OrderRepositoryDomain {
     async getAll(params?: GetOrdersRequest): Promise<PaginatedResult<Order>> {
         try {
             const limit = Math.min(params?.limit ?? OrderRepository.DEFAULT_LIMIT, OrderRepository.MAX_LIMIT);
-            const nextToken = params?.nextToken ?? undefined;
-
-            const expressionAttributeValues: Record<string, unknown> = {
-                ':entityType': OrderRepository.ENTITY_TYPE,
-            };
-            const expressionAttributeNames: Record<string, string> = {};
-            let filterExpression: string | undefined;
-
-            if (params?.status) {
-                const statuses = String(params.status)
-                    .split(',')
-                    .map((s: string) => s.trim().toLowerCase());
-
-                const placeholders: string[] = [];
-                statuses.forEach((status, index) => {
-                    const key = `:status${index}`;
-                    expressionAttributeValues[key] = status;
-                    placeholders.push(key);
-                });
-
-                expressionAttributeNames['#status'] = 'status';
-                filterExpression = `#status IN (${placeholders.join(', ')})`;
-            }
+            const filter = this.buildFilterExpression(params);
 
             return await this.dynamoDBAdapter.queryPage<Order>(this.tableName, {
                 indexName: OrderRepository.GSI_NAME,
                 limit,
-                nextToken,
+                nextToken: params?.nextToken ?? undefined,
                 keyConditionExpression: 'entityType = :entityType',
-                expressionAttributeValues,
-                ...(filterExpression && { filterExpression }),
-                ...(Object.keys(expressionAttributeNames).length > 0 && { expressionAttributeNames }),
                 scanIndexForward: false,
+                ...filter,
             });
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error fetching all orders`, error);
             throw new Error(`❌ ${this.constructor.name}: Error fetching all orders`);
+        }
+    }
+
+    async count(params?: GetOrdersRequest): Promise<number> {
+        try {
+            const filter = this.buildFilterExpression(params);
+
+            return await this.dynamoDBAdapter.count(this.tableName, {
+                indexName: OrderRepository.GSI_NAME,
+                keyConditionExpression: 'entityType = :entityType',
+                ...filter,
+            });
+        } catch (error) {
+            console.error(`❌ ${this.constructor.name}: Error counting orders`, error);
+            throw new Error(`❌ ${this.constructor.name}: Error counting orders`);
         }
     }
 
@@ -151,6 +142,37 @@ class OrderRepository implements OrderRepositoryDomain {
             console.error(`❌ ${this.constructor.name}: Error getting next order number`, error);
             throw new Error(`❌ ${this.constructor.name}: Error getting next order number`);
         }
+    }
+
+    private buildFilterExpression(params?: GetOrdersRequest): {
+        expressionAttributeValues: Record<string, unknown>;
+        expressionAttributeNames?: Record<string, string>;
+        filterExpression?: string;
+    } {
+        const expressionAttributeValues: Record<string, unknown> = {
+            ':entityType': OrderRepository.ENTITY_TYPE,
+        };
+
+        if (!params?.status) {
+            return { expressionAttributeValues };
+        }
+
+        const statuses = String(params.status)
+            .split(',')
+            .map((s: string) => s.trim().toLowerCase());
+
+        const placeholders: string[] = [];
+        statuses.forEach((status, index) => {
+            const key = `:status${index}`;
+            expressionAttributeValues[key] = status;
+            placeholders.push(key);
+        });
+
+        return {
+            expressionAttributeValues,
+            expressionAttributeNames: { '#status': 'status' },
+            filterExpression: `#status IN (${placeholders.join(', ')})`,
+        };
     }
 }
 

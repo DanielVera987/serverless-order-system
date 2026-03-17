@@ -1,6 +1,6 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, PutCommand, DeleteCommand, ScanCommand, QueryCommand, BatchWriteCommand, BatchWriteCommandOutput, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { DynamoDBAdapter as DynamoDBAdapterDomain, ScanPageOptions, QueryPageOptions } from '../../domain/database/DynamoDBAdapter';
+import { DynamoDBAdapter as DynamoDBAdapterDomain, ScanPageOptions, QueryPageOptions, CountOptions } from '../../domain/database/DynamoDBAdapter';
 import { PaginatedResult } from '../../domain/database/PaginatedResult';
 import { Injectable } from '../di';
 
@@ -194,6 +194,38 @@ export class DynamoDBAdapter implements DynamoDBAdapterDomain {
     }));
 
     return result.Attributes![counterField] as number;
+  }
+
+  async count(tableName: string, options?: CountOptions): Promise<number> {
+    let total = 0;
+    let lastEvaluatedKey: Record<string, unknown> | undefined;
+
+    do {
+      const result = options?.keyConditionExpression
+        ? await this.client.send(new QueryCommand({
+            TableName: tableName,
+            IndexName: options.indexName,
+            Select: 'COUNT',
+            KeyConditionExpression: options.keyConditionExpression,
+            ExpressionAttributeValues: options.expressionAttributeValues,
+            ExpressionAttributeNames: options.expressionAttributeNames,
+            FilterExpression: options.filterExpression,
+            ExclusiveStartKey: lastEvaluatedKey,
+          }))
+        : await this.client.send(new ScanCommand({
+            TableName: tableName,
+            Select: 'COUNT',
+            FilterExpression: options?.filterExpression,
+            ExpressionAttributeNames: options?.expressionAttributeNames,
+            ExpressionAttributeValues: options?.expressionAttributeValues,
+            ExclusiveStartKey: lastEvaluatedKey,
+          }));
+
+      total += result.Count ?? 0;
+      lastEvaluatedKey = result.LastEvaluatedKey;
+    } while (lastEvaluatedKey);
+
+    return total;
   }
 
   async updateStockAtomic(

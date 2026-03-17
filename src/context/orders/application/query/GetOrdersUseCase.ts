@@ -16,11 +16,14 @@ export default class GetOrdersUseCase implements UseCase<GetOrdersRequest, Pagin
     try {
       console.log(`🚀 ${this.constructor.name} Fetching orders`);
 
-      const result = await this.orderRepository.getAll(params);
+      const [result, total] = await Promise.all([
+        this.orderRepository.getAll(params),
+        this.orderRepository.count(params),
+      ]);
 
-      console.log(`✅ ${this.constructor.name} Successfully fetched ${result.items.length} orders`);
+      console.log(`✅ ${this.constructor.name} Successfully fetched ${result.items.length} of ${total} orders`);
 
-      return result;
+      return { ...result, total };
     } catch (error) {
       console.error('❌ Error fetching orders', error);
       throw new Error('Failed to fetch orders');
