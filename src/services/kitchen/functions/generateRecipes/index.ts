@@ -1,3 +1,5 @@
+import Config from '../../config/Config';
+
 const SQS_ORDERS_PROCESS_ARN = {
   'Fn::Join': ['', [
     'arn:aws:sqs:${aws:region}:${aws:accountId}:',
@@ -15,6 +17,7 @@ const lambda = {
     INGREDIENTS_TABLE: 'restaurant-kitchen-${sls:stage}-ingredients',
     SNS_RECIPE_CREATED_ARN: { Ref: 'SNSRecipeCreated' },
     SQS_RECIPE_PROCESS_QUEUE: { Ref: 'SQSRecipeProcess' },
+    TABLE_RECIPES_DYNAMODB: Config.TABLE_RECIPES_DYNAMODB,
   },
   events: [
     { 
