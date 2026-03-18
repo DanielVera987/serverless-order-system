@@ -102,5 +102,14 @@ npm run deploy
 
 ---
 
+# 🧼 Mejoras a aplicar
+* Test Unitarios y Test de integración (por tiempo no pude aplicarlos)
+* Agregar en una capa de Lib para las lambdas de las librerias node_modules. Asi evitar que por cada deploy se deba de compilar todas las librerias
+* Mejorar tema de permisos, por practicidad se decidio agregar los permisos desde serverless. Pero considero que esto sea controlador por equipo de DevOps y Arquitectura
+* Configuracion de tags en template (para manejar costos o cualquier otra forma de reporte)
+* Mejor uso de DatabaseAdapter. Se puede mejorar para poder conectar cualquier tipo de de datos. Por cuenta free se decicio usar DynamoDB
+* Agregar capa de validaciones por schema en request
+* .....
+
 # 👷 Arquitectura Serverless
 <img src="./assets/reto-serverless.jpg" alt="Arquitectura Serverless" width="100%">
