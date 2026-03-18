@@ -1,5 +1,5 @@
 export default Object.freeze({
   SQSController: Symbol.for('SQSController'),
-  DeductStockUseCase: Symbol.for('DeductStockUseCase'),
+  ReserveIngredientsUseCase: Symbol.for('ReserveIngredientsUseCase'),
   IngredientRepository: Symbol.for('IngredientRepository'),
 });

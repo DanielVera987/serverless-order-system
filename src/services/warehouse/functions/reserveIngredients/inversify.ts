@@ -3,7 +3,7 @@ import types from './types';
 import { SQSController } from './controllers/sqs/SQSController';
 import { SqsHandler } from '../../../../context/shared/infrastructure/controller/ControllerBase';
 import { UseCase } from '../../../../context/shared/domain/UseCase';
-import { DeductStockUseCase } from '../../../../context/warehouse/application/command/DeductStockUseCase';
+import { ReserveIngredientsUseCase } from '../../../../context/warehouse/application/command/ReserveIngredientsUseCase';
 import { InventoryReadyRequest } from '../../../../context/warehouse/domain/ports/InventoryCheckRequest';
 import IngredientRepository from '../../../../context/warehouse/infrastructure/repository/IngredientRepository';
 import { DynamoDBAdapter as DynamoDBAdapterDomain } from '../../../../context/shared/domain/database/DynamoDBAdapter';
@@ -19,6 +19,6 @@ container.bind<SqsHandler>(types.SQSController).to(SQSController);
 container.bind<DynamoDBAdapterDomain>(TypesShared.DynamoDBAdapter).to(DynamoDBAdapter);
 container.bind<NotificationPublisher>(TypesShared.NotificationPublisher).to(SNSNotificationPublisher);
 container.bind<IngredientRepositoryDomain>(types.IngredientRepository).to(IngredientRepository);
-container.bind<UseCase<InventoryReadyRequest, void>>(types.DeductStockUseCase).to(DeductStockUseCase);
+container.bind<UseCase<InventoryReadyRequest, void>>(types.ReserveIngredientsUseCase).to(ReserveIngredientsUseCase);
 
 export default container;

@@ -8,15 +8,15 @@ import types from '../../types';
 @Injectable()
 export class SQSController implements SqsHandler {
   constructor(
-    @Inject(types.DeductStockUseCase)
-    private readonly deductStockUseCase: UseCase<InventoryReadyRequest, void>,
+    @Inject(types.ReserveIngredientsUseCase)
+    private readonly reserveIngredientsUseCase: UseCase<InventoryReadyRequest, void>,
   ) {}
 
   async handleRecord(record: SQSRecord, body: any): Promise<void> {
-    console.log('🔍 DeductStock SQSController handleRecord', body);
+    console.log('🔍 ReserveIngredients SQSController handleRecord', body);
 
     const request = this.normalizeRequest(body);
-    await this.deductStockUseCase.execute(request);
+    await this.reserveIngredientsUseCase.execute(request);
   }
 
   private normalizeRequest(body: SQSBody | InventoryReadyRequest | unknown): InventoryReadyRequest {
@@ -26,7 +26,7 @@ export class SQSController implements SqsHandler {
       return payload;
     }
 
-    throw new Error('❌ Invalid payload for deductStock: assignments array is required');
+    throw new Error('❌ Invalid payload for reserveIngredients: assignments array is required');
   }
 
   private parseSnsMessageIfNeeded(body: SQSBody | InventoryReadyRequest | unknown): unknown {

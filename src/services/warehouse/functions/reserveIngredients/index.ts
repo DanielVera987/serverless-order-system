@@ -1,6 +1,6 @@
 const lambda = {
-  handler: 'functions/deductStock/handler.deductStock',
-  description: 'Atomically deduct stock for inventory-ready assignments',
+  handler: 'functions/reserveIngredients/handler.reserveIngredients',
+  description: 'Atomically reserve ingredients for inventory-ready assignments',
   environment: {
     INGREDIENTS_TABLE: 'restaurant-kitchen-${sls:stage}-ingredients',
     SNS_ORDER_READY_ARN: { Ref: 'SNSOrderReady' },

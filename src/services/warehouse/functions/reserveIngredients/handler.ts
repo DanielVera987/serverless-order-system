@@ -9,4 +9,4 @@ const controllers: Controllers = {
 };
 
 const controller = new ControllerBase(controllers as Controllers);
-export const deductStock = (event: unknown) => controller.execute(event);
+export const reserveIngredients = (event: unknown) => controller.execute(event);

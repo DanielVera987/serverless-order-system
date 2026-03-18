@@ -5,10 +5,10 @@ import TypesShared from '../../../shared/SharedTypes';
 import IngredientRepository from '../../infrastructure/repository/IngredientRepository';
 import { InventoryReadyRequest, OrderRecipeAssignment } from '../../domain/ports/InventoryCheckRequest';
 import Env from '../../../../services/warehouse/config/Environment';
-import types from '../../../../services/warehouse/functions/deductStock/types';
+import types from '../../../../services/warehouse/functions/reserveIngredients/types';
 
 @Injectable()
-export class DeductStockUseCase implements UseCase<InventoryReadyRequest, void> {
+export class ReserveIngredientsUseCase implements UseCase<InventoryReadyRequest, void> {
   constructor(
     @Inject(types.IngredientRepository) private readonly ingredientRepository: IngredientRepository,
     @Inject(TypesShared.NotificationPublisher) private readonly notificationPublisher: NotificationPublisher,
@@ -16,7 +16,7 @@ export class DeductStockUseCase implements UseCase<InventoryReadyRequest, void> 
 
   async execute(request: InventoryReadyRequest): Promise<void> {
     const batchId = Date.now();
-    console.log(`🚀 DeductStockUseCase: processing batch ${batchId} with ${request.assignments.length} orders`);
+    console.log(`🚀 ReserveIngredientsUseCase: processing batch ${batchId} with ${request.assignments.length} orders`);
 
     const allIngredients = await this.ingredientRepository.getAll();
     const stockMap = new Map(allIngredients.map(i => [i.name, i]));
@@ -25,18 +25,18 @@ export class DeductStockUseCase implements UseCase<InventoryReadyRequest, void> 
     const failedOrders: OrderRecipeAssignment[] = [];
 
     for (const assignment of request.assignments) {
-      const deducted = await this.tryAtomicDeduction(assignment, stockMap);
+      const reserved = await this.tryAtomicReservation(assignment, stockMap);
 
-      if (deducted) {
+      if (reserved) {
         for (const ingredient of assignment.recipe.ingredients) {
           const record = stockMap.get(ingredient.name)!;
           stockMap.set(ingredient.name, { ...record, quantity: record.quantity - ingredient.quantity });
         }
         successfulOrders.push(assignment);
-        console.log(`✅ Order ${assignment.orderId}: stock deducted for ${assignment.recipe.name}`);
+        console.log(`✅ Order ${assignment.orderId}: ingredients reserved for ${assignment.recipe.name}`);
       } else {
         failedOrders.push(assignment);
-        console.log(`⚠️ Order ${assignment.orderId}: atomic deduction failed (race condition) for ${assignment.recipe.name}`);
+        console.log(`⚠️ Order ${assignment.orderId}: atomic reservation failed (race condition) for ${assignment.recipe.name}`);
       }
     }
 
@@ -44,7 +44,7 @@ export class DeductStockUseCase implements UseCase<InventoryReadyRequest, void> 
     await this.publishFailedOrders(failedOrders, batchId);
   }
 
-  private async tryAtomicDeduction(
+  private async tryAtomicReservation(
     assignment: OrderRecipeAssignment,
     stockMap: Map<string, { id: string; quantity: number }>,
   ): Promise<boolean> {
