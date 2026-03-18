@@ -103,4 +103,4 @@ npm run deploy
 ---
 
 # 👷 Arquitectura Serverless
-<img src="./assets/reto-serverless-architecture.png" alt="Arquitectura Serverless" width="100%">
+<img src="./assets/reto-serverless.jpg" alt="Arquitectura Serverless" width="100%">
