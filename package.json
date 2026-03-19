@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "deploy": "npx serverless deploy --stage dev",
+    "build:layer": "cd layers/lib/nodejs && npm install",
+    "deploy": "npm run build:layer && npx serverless deploy --stage dev",
     "start": "npx serverless offline start --stage dev --reloadHandler"
   },
   "dependencies": {

@@ -37,21 +37,47 @@ export const corsConfig = {
   allowCredentials: false,
 };
 
+const LAYER_ARN = {
+  'Fn::ImportValue': 'restaurant-layer-lib-${sls:stage}-DepsLayerArn',
+};
+
+const EXTERNAL_PACKAGES = [
+  '@aws-sdk/client-dynamodb',
+  '@aws-sdk/client-sns',
+  '@aws-sdk/client-sqs',
+  '@aws-sdk/lib-dynamodb',
+  'axios',
+  'inversify',
+  'openai',
+  'reflect-metadata',
+  'uuid',
+];
+
 export const baseConfig: DeepPartial<AWS> = {
   frameworkVersion: '3',
-  provider: {
-    name: 'aws',
-    runtime: 'nodejs20.x',
-    region: 'us-east-1',
-    stage: '${opt:stage, "dev"}',
-  },
+  useDotenv: true,
   package: {
     individually: true,
+    patterns: [
+      "!**/node_modules/**", "!node_modules/"
+    ]
   },
   plugins: [
     'serverless-esbuild',
     'serverless-offline',
   ],
+  provider: {
+    name: 'aws',
+    runtime: 'nodejs20.x',
+    region: 'us-east-1',
+    stage: '${opt:stage, "dev"}',
+    tags: {
+      environment: '${opt:stage, "dev"}',
+      project_name: "${env:PROJECT_NAME, 'restaurant'}",
+      department: "${env:DEPARTMENT, 'department_it'}",
+      cost_center: "${env:COST_CENTER, 'cost_center'}",
+    },
+  },
   custom: {
     esbuild: {
       bundle: true,
@@ -59,6 +85,8 @@ export const baseConfig: DeepPartial<AWS> = {
       sourcemap: true,
       target: 'node20',
       platform: 'node',
+      external: EXTERNAL_PACKAGES,
+      exclude: EXTERNAL_PACKAGES,
     },
   },
 };
@@ -74,6 +102,13 @@ export function createService(
 ): AWS {
   const statements = [...baseStatements, ...(options?.iamStatements ?? [])];
 
+  const functionsWithLayer = Object.fromEntries(
+    Object.entries(functions ?? {}).map(([name, fn]) => [
+      name,
+      { ...fn, layers: [LAYER_ARN] },
+    ]),
+  ) as AWS['functions'];
+
   return {
     ...baseConfig,
     service: serviceName,
@@ -86,7 +121,7 @@ export function createService(
       },
       ...(options?.environment && { environment: options.environment }),
     },
-    functions,
+    functions: functionsWithLayer,
     ...(options?.resources && { resources: options.resources }),
   } as AWS;
 }

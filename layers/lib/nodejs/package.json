@@ -1,0 +1,16 @@
+{
+  "name": "restaurant-deps-layer",
+  "version": "1.0.0",
+  "description": "Shared runtime dependencies for all restaurant Lambda functions",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.600.0",
+    "@aws-sdk/client-sns": "^3.600.0",
+    "@aws-sdk/client-sqs": "^3.600.0",
+    "@aws-sdk/lib-dynamodb": "^3.1008.0",
+    "axios": "^1.13.6",
+    "inversify": "^7.11.0",
+    "openai": "^6.29.0",
+    "reflect-metadata": "^0.2.2",
+    "uuid": "^9.0.0"
+  }
+}
