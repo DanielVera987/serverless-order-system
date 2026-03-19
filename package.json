@@ -8,7 +8,8 @@
     "start": "npx serverless offline start --stage dev --reloadHandler",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "prepare": "husky"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.600.0",
@@ -29,6 +30,7 @@
     "@types/node": "^20.0.0",
     "@types/uuid": "^10.0.0",
     "esbuild": "^0.21.0",
+    "husky": "^9.1.7",
     "jest": "^30.3.0",
     "serverless": "^3.39.0",
     "serverless-esbuild": "^1.52.0",
