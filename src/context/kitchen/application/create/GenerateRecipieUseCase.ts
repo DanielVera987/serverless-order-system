@@ -3,7 +3,7 @@ import { Injectable, Inject } from '../../../shared/infrastructure/di';
 import { SQSMessageRequest } from '../../domain/ports/SQSRequest';
 import { getRandomRecipe } from '../../domain/catalog/RecipesCatalog';
 import Recipe from '../../domain/entity/Recipe';
-import OrderRepository from '../../infrastructure/repository/OrderRepository';
+import OrderRepositoryDomain from '../../domain/repository/OrderRepository';
 import types from '../../../../services/kitchen/functions/generateRecipes/types';
 import TypesShared from '../../../shared/SharedTypes';
 import { NotificationPublisher } from '../../../shared/domain/notification/NotificationPublisher';
@@ -24,7 +24,7 @@ const ORDER_UPDATE_CONCURRENCY = Number(process.env.KITCHEN_ORDER_UPDATE_CONCURR
 @Injectable()
 export default class GenerateRecipieUseCase implements UseCase<SQSMessageRequest, OrderWithRecipe[]> {
   constructor(
-    @Inject(types.OrderRepository) private readonly orderRepository: OrderRepository,
+    @Inject(types.OrderRepository) private readonly orderRepository: OrderRepositoryDomain,
     @Inject(TypesShared.NotificationPublisher) private readonly notificationPublisher: NotificationPublisher,
     @Inject(types.RecipeRepository) private readonly recipeRepository: RecipeRepositoryDomain,
   ) {}
