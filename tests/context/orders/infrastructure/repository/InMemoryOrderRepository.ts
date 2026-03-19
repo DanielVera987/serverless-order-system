@@ -39,13 +39,18 @@ export default class InMemoryOrderRepository implements OrderRepository {
 
   async getAll(params?: GetOrdersRequest): Promise<PaginatedResult<Order>> {
     this.checkForError();
-    const filteredOrders = this.orders.filter(order =>
+    let filteredOrders = this.orders.filter(order =>
       params?.status ? order.status === params.status : true
     );
+
+    if (params?.limit) {
+      filteredOrders = filteredOrders.slice(0, params.limit);
+    }
+
     return {
       items: filteredOrders,
       total: filteredOrders.length,
-      nextToken: null,
+      nextToken: filteredOrders.length < this.orders.length ? filteredOrders[filteredOrders.length - 1].id : null,
     };
   }
 
