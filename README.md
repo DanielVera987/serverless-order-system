@@ -103,11 +103,14 @@ npm run deploy
 ---
 
 # 🧼 Mejoras a aplicar
-* Test Unitarios y Test de integración (por tiempo no pude aplicarlos)
 * Mejorar tema de permisos, por practicidad se decidio agregar los permisos desde serverless. Pero considero que esto sea controlador por equipo de DevOps y Arquitectura
 * Mejor uso de DatabaseAdapter. Se puede mejorar para poder conectar cualquier tipo de de datos. Por cuenta free se decicio usar DynamoDB
 * Agregar capa de validaciones por schema en request
 * .....
+
+# ✨ Adicionales
+* Se agregan test unitarios para tener seguridad
+* Se configura un pre-commit para validar que todos los test pasen correctamente y permitir el commit
 
 # 👷 Arquitectura Serverless
 <img src="./assets/reto-serverless.jpg" alt="Arquitectura Serverless" width="100%">
