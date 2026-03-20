@@ -1,5 +1,5 @@
 import { Container } from 'inversify';
-import types from './types';
+import types from '../../../../context/artificial-intelligence/Types';
 import ApiGatewayController from '../recommendRecipe/controllers/api/ApiGatewayController';
 import { ApiGatewayHandler } from '../../../../context/shared/infrastructure/controller/ControllerBase';
 import IngredientsRepository from '../../../../context/artificial-intelligence/infrastructure/repository/IngredientsRepository';

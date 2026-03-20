@@ -1,5 +1,5 @@
 import { Container } from "inversify";
-import types from "./types";
+import types from '../../../../context/warehouse/Types';
 import { ApiGatewayHandler } from "../../../../context/shared/infrastructure/controller/ControllerBase";
 import { ApiGatewayController } from "./controllers/api/ApiGatewayController";
 import { UseCase } from "../../../../context/shared/domain/UseCase";

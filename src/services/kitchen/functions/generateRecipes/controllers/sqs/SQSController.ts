@@ -3,7 +3,7 @@ import { SqsHandler, SQSBody } from '../../../../../../context/shared/infrastruc
 import { Injectable, Inject } from '../../../../../../context/shared/infrastructure/di';
 import { UseCase } from '../../../../../../context/shared/domain/UseCase';
 import { SQSMessageRequest } from '../../../../../../context/kitchen/domain/ports/SQSRequest';
-import types from '../../types';
+import types from '../../../../../../context/kitchen/Types';
 
 @Injectable()
 export class SQSController implements SqsHandler {

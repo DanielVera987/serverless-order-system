@@ -1,6 +1,6 @@
 import { ApiGatewayHandler } from '../../../../../../context/shared/infrastructure/controller/ControllerBase';
 import { Inject, Injectable } from '../../../../../../context/shared/infrastructure/di';
-import types from '../../types';
+import types from '../../../../../../context/artificial-intelligence/Types';
 import { UseCase } from '../../../../../../context/shared/domain/UseCase';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 

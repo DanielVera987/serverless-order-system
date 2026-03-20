@@ -3,7 +3,7 @@ import { SqsHandler, SQSBody } from '../../../../../../context/shared/infrastruc
 import { Injectable, Inject } from '../../../../../../context/shared/infrastructure/di';
 import { UseCase } from '../../../../../../context/shared/domain/UseCase';
 import { InventoryReadyRequest } from '../../../../../../context/warehouse/domain/ports/InventoryCheckRequest';
-import types from '../../types';
+import types from '../../../../../../context/warehouse/Types';
 import Logger from '../../../../../../context/shared/domain/logger/Logger';
 
 @Injectable()

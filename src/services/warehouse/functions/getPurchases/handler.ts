@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import types from './types';
+import types from '../../../../context/warehouse/Types';
 import container from './inversify';
 import { ApiGatewayHandler, ControllerBase } from '../../../../context/shared/infrastructure/controller/ControllerBase';
 import { Controllers } from '../../../../context/shared/infrastructure/controller/ControllerBase';

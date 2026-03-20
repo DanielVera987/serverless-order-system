@@ -1,7 +1,7 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { ApiGatewayHandler } from '../../../../../../context/shared/infrastructure/controller/ControllerBase';
 import { Inject, Injectable } from '../../../../../../context/shared/infrastructure/di';
-import types from '../../Types';
+import types from '../../../../../../context/kitchen/Types';
 import { UseCase } from '../../../../../../context/shared/domain/UseCase';
 import Ingredient from '../../../../../../context/kitchen/domain/entity/Ingredient';
 

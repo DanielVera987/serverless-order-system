@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import Types from './Types';
+import Types from '../../../../context/warehouse/Types';
 import container from './inversify';
 import { ControllerBase, SqsHandler } from '../../../../context/shared/infrastructure/controller/ControllerBase';
 import { Controllers } from '../../../../context/shared/infrastructure/controller/ControllerBase';

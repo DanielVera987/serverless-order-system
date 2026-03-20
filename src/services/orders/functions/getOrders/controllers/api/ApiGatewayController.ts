@@ -1,4 +1,4 @@
-import types from '../../types';
+import types from '../../../../../../context/orders/Types';
 import { UseCase } from '../../../../../../context/shared/domain/UseCase';
 import Order from '../../../../../../context/orders/domain/entity/Order';
 import { PaginatedResult } from '../../../../../../context/shared/domain/database/PaginatedResult';

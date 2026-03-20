@@ -3,7 +3,7 @@ import { ApiGatewayHandler } from '../../../../../../context/shared/infrastructu
 import { Injectable, Inject } from '../../../../../../context/shared/infrastructure/di';
 import { Request } from '../../../../../../context/orders/domain/ports/Request';
 import { UseCase } from '../../../../../../context/shared/domain/UseCase';
-import types from '../../types';
+import types from '../../../../../../context/orders/Types';
 import Order from '../../../../../../context/orders/domain/entity/Order';
 
 @Injectable()

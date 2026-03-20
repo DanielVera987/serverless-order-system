@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import middy from '@middy/core';
-import types from './types';
+import types from '../../../../context/orders/Types';
 import container from './inversify';
 import { ControllerBase, Controllers, ApiGatewayHandler } from '../../../../context/shared/infrastructure/controller/ControllerBase';
 import { validationMiddleware } from '../../../../context/shared/infrastructure/middlewares/validationMiddleware';

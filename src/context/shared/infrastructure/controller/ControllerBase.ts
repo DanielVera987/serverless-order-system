@@ -51,17 +51,30 @@ export class ControllerBase {
   
     if (this.isSqs(event) && this.controllers.sqs) {
       const records = (event as SQSEvent).Records;
-  
+      const batchItemFailures: { itemIdentifier: string }[] = [];
+
       Logger.init(`SQSController Started: ${this.controllers.sqs.constructor.name}`);
       Logger.log(`SQS Records count: ${records.length}`);
-  
-      for (const record of records) {
-        const body = JSON.parse(record.body);
-        await this.controllers.sqs!.handleRecord(record, body);
+
+      await Promise.all(
+        records.map(async (record) => {
+          try {
+            const body = JSON.parse(record.body);
+            await this.controllers.sqs!.handleRecord(record, body);
+          } catch (error) {
+            Logger.error(`SQS record failed: ${record.messageId}`, error);
+            batchItemFailures.push({ itemIdentifier: record.messageId });
+          }
+        }),
+      );
+
+      if (batchItemFailures.length > 0) {
+        Logger.log(`SQSController finished with ${batchItemFailures.length}/${records.length} failures`);
+      } else {
+        Logger.log(`SQSController Finished`);
       }
-  
-      Logger.log(`SQSController Finished`);
-      return;
+
+      return { batchItemFailures };
     }
   
     throw new Error(`❌ No controller registered for this event type`);
