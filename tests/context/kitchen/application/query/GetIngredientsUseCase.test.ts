@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import GetIngredientsUseCase from '../../../../../src/context/kitchen/application/query/GetIngredientUseCase';
+import { QueryError } from '../../../../../src/context/shared/domain/errors/DomainError';
 import { InMemoryIngredientRepository } from '../../infrastructure/repository/InMemoryIngredientRepository';
 import Ingredient from '../../../../../src/context/kitchen/domain/entity/Ingredient';
 
@@ -58,7 +59,7 @@ describe('GetIngredientsUseCase', () => {
       const useCase = new GetIngredientsUseCase(repo);
 
       // Act & Assert
-      await expect(useCase.execute()).rejects.toThrow('GetIngredientsUseCase: Error getting all ingredients');
+      await expect(useCase.execute()).rejects.toThrow(QueryError);
     });
   });
 });

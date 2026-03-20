@@ -4,6 +4,7 @@ import IngredientRepositoryDomain from '../../domain/repository/IngredientReposi
 import Ingredient from '../../domain/entity/Ingredient';
 import types from '../../../kitchen/Types';
 import Logger from '../../../shared/domain/logger/Logger';
+import { QueryError } from '../../../shared/domain/errors/DomainError';
 
 @Injectable()
 export default class GetIngredientsUseCase implements UseCase<unknown, Ingredient[]> {
@@ -17,8 +18,8 @@ export default class GetIngredientsUseCase implements UseCase<unknown, Ingredien
       Logger.log(`GetIngredientsUseCase ingredients: ${JSON.stringify(ingredients)}`);
       return ingredients;
     } catch (error) {
-      Logger.error(`GetIngredientsUseCase: Error getting all ingredients: ${error}`);
-      throw new Error(`❌ GetIngredientsUseCase: Error getting all ingredients`);
+      Logger.error('GetIngredientsUseCase: Error getting all ingredients', error);
+      throw new QueryError('Failed to fetch ingredients', error);
     }
   }
 }

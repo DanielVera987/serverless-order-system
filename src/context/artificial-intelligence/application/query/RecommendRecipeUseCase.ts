@@ -2,7 +2,9 @@ import { UseCase } from '../../../shared/domain/UseCase';
 import { Injectable, Inject } from '../../../shared/infrastructure/di';
 import AI, { AIMessage } from '../../../shared/domain/artificial-intelligence/ai';
 import TypesShared from '../../../shared/SharedTypes';
-import types from '../../../../services/artificial-intelligence/functions/recommendRecipe/types';
+import types from '../../Types';
+import Logger from '../../../shared/domain/logger/Logger';
+import { CommandError } from '../../../shared/domain/errors/DomainError';
 import IngredientsRepositoryDomain from '../../domain/repository/IngredientsRepository';
 import Recipe from '../../../kitchen/domain/entity/Recipe';
 import RecipeRepositoryDomain from '../../domain/repository/RecipeRepository';
@@ -85,8 +87,8 @@ export default class RecommendRecipeUseCase implements UseCase<string, string> {
 
       await this.recipeRepository.createBulk(recipesToSave);
     } catch (error) {
-      console.error(`❌ ${this.constructor.name}: Error saving recipes`, error);
-      throw new Error(`❌ ${this.constructor.name}: Error saving recipes`);
+      Logger.error(`${this.constructor.name}: Error saving recipes`, error);
+      throw new CommandError('Failed to recommend recipes', error);
     }
   }
 }

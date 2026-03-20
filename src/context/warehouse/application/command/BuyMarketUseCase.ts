@@ -1,6 +1,7 @@
 import { UseCase } from "../../../shared/domain/UseCase";
 import { BuyMarketRequest } from "../../domain/ports/ByMarketRequest";
-import Types from '../../../../services/warehouse/functions/buyMarket/Types';
+import Types from '../../Types';
+import { CommandError } from '../../../shared/domain/errors/DomainError';
 import TypesShared from '../../../shared/SharedTypes';
 import { Inject, Injectable } from "../../../shared/infrastructure/di";
 import FarmersMarketRepository from '../../domain/repository/FarmersMarketRepository';
@@ -82,8 +83,8 @@ export default class BuyMarketUseCase implements UseCase<BuyMarketRequest, void>
 
       Logger.notify(`SNS: ingredients purchased, ${request.assignments.length} orders re-sent to checkInventory`);
     } catch (error) {
-      Logger.error(`BuyMarketUseCase: Error buying from farmers market: ${error}`);
-      throw new Error(`❌ ${this.constructor.name}: Error buying from farmers market`);
+      Logger.error('BuyMarketUseCase: Error buying from farmers market', error);
+      throw new CommandError('Failed to buy from farmers market', error);
     }
   }
 }

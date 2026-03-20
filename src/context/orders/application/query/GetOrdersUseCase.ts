@@ -6,6 +6,7 @@ import Order from '../../domain/entity/Order';
 import types from '../../../orders/Types';
 import GetOrdersRequest from '../../domain/ports/GetOrdersRequest';
 import Logger from '../../../shared/domain/logger/Logger';
+import { QueryError } from '../../../shared/domain/errors/DomainError';
 
 @Injectable()
 export default class GetOrdersUseCase implements UseCase<GetOrdersRequest, PaginatedResult<Order>> {
@@ -26,8 +27,8 @@ export default class GetOrdersUseCase implements UseCase<GetOrdersRequest, Pagin
 
       return { ...result, total };
     } catch (error) {
-      console.error('❌ Error fetching orders', error);
-      throw new Error('Failed to fetch orders');
+      Logger.error('GetOrdersUseCase: Error fetching orders', error);
+      throw new QueryError('Failed to fetch orders', error);
     }
   }
 }

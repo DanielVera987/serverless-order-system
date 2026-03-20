@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import BuyMarketUseCase from '../../../../../src/context/warehouse/application/command/BuyMarketUseCase';
+import { CommandError } from '../../../../../src/context/shared/domain/errors/DomainError';
 import { InMemoryIngredientRepository } from '../../infrastructure/repository/InMemoryIngredientRepository';
 import { InMemoryPurchaseHistoryRepository } from '../../infrastructure/repository/InMemoryPurchaseHistoryRepository';
 import { InMemoryFarmersMarketRepository } from '../../infrastructure/repository/InMemoryFarmersMarketRepository';
@@ -119,7 +120,7 @@ describe('BuyMarketUseCase', () => {
       };
 
       // Act & Assert
-      await expect(useCase.execute(request)).rejects.toThrow('BuyMarketUseCase');
+      await expect(useCase.execute(request)).rejects.toThrow(CommandError);
     });
   });
 });

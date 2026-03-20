@@ -10,6 +10,7 @@ import Order from '../../domain/entity/Order';
 import Env from '../../../../services/orders/config/Environment';
 import { OrderStatus } from '../../../shared/domain/enums/OrderEnums';
 import Logger from '../../../shared/domain/logger/Logger';
+import { CreateError } from '../../../shared/domain/errors/DomainError';
 
 @Injectable()
 export class CreateOrderUseCase implements UseCase<Request, Order[]> {
@@ -37,8 +38,8 @@ export class CreateOrderUseCase implements UseCase<Request, Order[]> {
       return this.sortOrdersDesc(ordersData);
   
     } catch (error) {
-      Logger.error(`CreateOrderUseCase: Error creating orders: ${error}`);
-      throw new Error(`❌ ${this.constructor.name}: Error creating orders`);
+      Logger.error(`CreateOrderUseCase: Error creating orders`, error);
+      throw new CreateError('Failed to create orders', error);
     }
   }
 

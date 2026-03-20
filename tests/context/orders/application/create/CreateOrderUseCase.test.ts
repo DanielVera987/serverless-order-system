@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { CreateOrderUseCase } from '../../../../../src/context/orders/application/create/CreateOrderUseCase';
+import { CreateError } from '../../../../../src/context/shared/domain/errors/DomainError';
 import InMemoryOrderRepository from '../../infrastructure/repository/InMemoryOrderRepository';
 import InMemoryNotificationPublisher from '../../../shared/infrastructure/InMemoryNotificationPublisher';
 
@@ -79,7 +80,7 @@ describe('CreateOrderUseCase', () => {
       const useCase = new CreateOrderUseCase(repo, new InMemoryNotificationPublisher());
 
       // Act & Assert
-      await expect(useCase.execute({ numberOrders: 1 })).rejects.toThrow('CreateOrderUseCase');
+      await expect(useCase.execute({ numberOrders: 1 })).rejects.toThrow(CreateError);
     });
   });
 });

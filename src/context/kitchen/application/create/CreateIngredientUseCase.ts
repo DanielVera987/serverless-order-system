@@ -6,6 +6,7 @@ import Ingredient from '../../domain/entity/Ingredient';
 import { v4 as uuidv4 } from 'uuid';
 import types from '../../../kitchen/Types';
 import Logger from '../../../shared/domain/logger/Logger';
+import { CreateError } from '../../../shared/domain/errors/DomainError';
 
 @Injectable()
 export class CreateIngredientUseCase implements UseCase<IngredientRequest, Ingredient> {
@@ -30,8 +31,8 @@ export class CreateIngredientUseCase implements UseCase<IngredientRequest, Ingre
 
       return ingredient;
     } catch (error) {
-      console.error(`❌ CreateIngredientUseCase: Error creating ingredient`, error);
-      throw new Error(`❌ CreateIngredientUseCase: Error creating ingredient`);
+      Logger.error('CreateIngredientUseCase: Error creating ingredient', error);
+      throw new CreateError('Failed to create ingredient', error);
     }
   }
 }
