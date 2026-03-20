@@ -1,13 +1,17 @@
 import 'reflect-metadata';
+import middy from '@middy/core';
 import types from './types';
 import container from './inversify';
-import { ControllerBase } from '../../../../context/shared/infrastructure/controller/ControllerBase';
-import { Controllers, ApiGatewayHandler } from '../../../../context/shared/infrastructure/controller/ControllerBase';
+import { ControllerBase, Controllers, ApiGatewayHandler } from '../../../../context/shared/infrastructure/controller/ControllerBase';
+import { validationMiddleware } from '../../../../context/shared/infrastructure/middlewares/validationMiddleware';
+import { schema } from './controllers/api/schema';
 
-// Register controllers by event type
 const controllers: Controllers = {
   api: container.get<ApiGatewayHandler>(types.ApiGatewayController),
 };
 
-const controller = new ControllerBase(controllers as Controllers);
-export const getOrders = (event: unknown) => controller.execute(event);
+const controller = new ControllerBase(controllers);
+
+export const getOrders = middy()
+  .use(validationMiddleware(schema))
+  .handler((event) => controller.execute(event));

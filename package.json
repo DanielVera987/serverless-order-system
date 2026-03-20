@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build:layer": "cd layers/lib/nodejs && npm install",
-    "deploy": "npm run build:layer && npx serverless deploy --stage dev",
+    "deploy": "npx serverless deploy --stage dev",
+    "deploy:layer": "npm run build:layer && cd layers/lib && npx serverless deploy --stage dev",
     "start": "npx serverless offline start --stage dev --reloadHandler",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -16,11 +17,13 @@
     "@aws-sdk/client-sns": "^3.600.0",
     "@aws-sdk/client-sqs": "^3.600.0",
     "@aws-sdk/lib-dynamodb": "^3.1008.0",
+    "@middy/core": "^6.4.5",
     "axios": "^1.13.6",
     "dotenv": "^17.3.1",
     "inversify": "^7.11.0",
     "openai": "^6.29.0",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@serverless/compose": "^1.3.0",

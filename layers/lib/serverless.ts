@@ -17,11 +17,14 @@ module.exports = {
     },
   },
   resources: {
-    Outputs: {
-      DepsLayerArn: {
-        Value: { Ref: 'DepsLambdaLayer' },
-        Export: {
-          Name: 'restaurant-layer-lib-${sls:stage}-DepsLayerArn',
+    Resources: {
+      DepsLayerArnParam: {
+        Type: 'AWS::SSM::Parameter',
+        Properties: {
+          Name: '/restaurant/layer/${sls:stage}/deps-arn',
+          Type: 'String',
+          Value: { Ref: 'DepsLambdaLayer' },
+          Description: 'ARN of the restaurant shared dependencies Lambda Layer',
         },
       },
     },

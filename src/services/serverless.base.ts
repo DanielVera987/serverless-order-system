@@ -37,9 +37,7 @@ export const corsConfig = {
   allowCredentials: false,
 };
 
-const LAYER_ARN = {
-  'Fn::ImportValue': 'restaurant-layer-lib-${sls:stage}-DepsLayerArn',
-};
+const LAYER_ARN = '${ssm:/restaurant/layer/${sls:stage}/deps-arn}';
 
 const EXTERNAL_PACKAGES = [
   '@aws-sdk/client-dynamodb',
@@ -51,6 +49,7 @@ const EXTERNAL_PACKAGES = [
   'openai',
   'reflect-metadata',
   'uuid',
+  'zod',
 ];
 
 export const baseConfig: DeepPartial<AWS> = {
