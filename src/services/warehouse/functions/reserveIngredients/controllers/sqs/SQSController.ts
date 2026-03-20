@@ -4,6 +4,7 @@ import { Injectable, Inject } from '../../../../../../context/shared/infrastruct
 import { UseCase } from '../../../../../../context/shared/domain/UseCase';
 import { InventoryReadyRequest } from '../../../../../../context/warehouse/domain/ports/InventoryCheckRequest';
 import types from '../../types';
+import Logger from '../../../../../../context/shared/domain/logger/Logger';
 
 @Injectable()
 export class SQSController implements SqsHandler {
@@ -13,7 +14,7 @@ export class SQSController implements SqsHandler {
   ) {}
 
   async handleRecord(record: SQSRecord, body: any): Promise<void> {
-    console.log('🔍 ReserveIngredients SQSController handleRecord', body);
+    Logger.init(`SQSController handleRecord: ${body}`);
 
     const request = this.normalizeRequest(body);
     await this.reserveIngredientsUseCase.execute(request);
