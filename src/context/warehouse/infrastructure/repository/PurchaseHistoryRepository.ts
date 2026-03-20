@@ -6,6 +6,7 @@ import PurchaseHistory from "../../domain/entity/PurchaseHistory";
 import GetPurchaseHistoryRequest from "../../domain/ports/GetPurchaseHistoryRequest";
 import { PaginatedResult } from "../../../shared/domain/database/PaginatedResult";
 import { v4 as uuidv4 } from 'uuid';
+import Logger from '../../../shared/domain/logger/Logger';
 
 @Injectable()
 export default class PurchaseHistoryRepository implements PurchaseHistoryRepositoryDomain {
@@ -21,7 +22,7 @@ export default class PurchaseHistoryRepository implements PurchaseHistoryReposit
 
     async create(purchaseHistories: PurchaseHistory[]): Promise<PurchaseHistory[]> {
         try {
-            console.log('🔵 PurchaseHistoryRepository: purchaseHistories', purchaseHistories);
+            Logger.trace(`PurchaseHistoryRepository: purchaseHistories: ${purchaseHistories}`);
 
             const items = purchaseHistories.map(purchaseHistory => ({
                 id: uuidv4(),
@@ -33,7 +34,7 @@ export default class PurchaseHistoryRepository implements PurchaseHistoryReposit
 
             return await this.databaseAdapter.insertBatch(this.tableName, items);
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}: Error creating purchase history`, error);
+            Logger.error(`PurchaseHistoryRepository: Error creating purchase history: ${error}`);
             throw new Error(`❌ ${this.constructor.name}: Error creating purchase history`);
         }
     }
@@ -53,7 +54,7 @@ export default class PurchaseHistoryRepository implements PurchaseHistoryReposit
                 cursor: params?.nextToken ?? null,
             });
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}: Error getting all purchase history`, error);
+            Logger.error(`PurchaseHistoryRepository: Error getting all purchase history: ${error}`);
             throw new Error(`❌ ${this.constructor.name}: Error getting all purchase history`);
         }
     }
@@ -68,7 +69,7 @@ export default class PurchaseHistoryRepository implements PurchaseHistoryReposit
                 },
             });
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}: Error counting purchase history`, error);
+            Logger.error(`PurchaseHistoryRepository: Error counting purchase history: ${error}`);
             throw new Error(`❌ ${this.constructor.name}: Error counting purchase history`);
         }
     }

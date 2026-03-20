@@ -10,6 +10,7 @@ import { NotificationPublisher } from '../../../shared/domain/notification/Notif
 import Env from '../../../../services/kitchen/config/Environment';
 import { OrderStatus } from '../../../shared/domain/enums/OrderEnums';
 import RecipeRepositoryDomain from '../../domain/repository/RecipeRepository';
+import Logger from '../../../shared/domain/logger/Logger';
 
 interface OrderWithRecipe {
   orderId: string;
@@ -30,7 +31,7 @@ export default class GenerateRecipieUseCase implements UseCase<SQSMessageRequest
   ) {}
 
   async execute(request: SQSMessageRequest): Promise<OrderWithRecipe[]> {
-    console.log('🚀 GenerateRecipieUseCase execute request', request);
+    Logger.init(`GenerateRecipieUseCase execute request: ${request}`);
   
     const batchId = Date.now();
     const recipes = await this.recipeRepository.getAll();
@@ -41,7 +42,7 @@ export default class GenerateRecipieUseCase implements UseCase<SQSMessageRequest
       async (order) => {
         const recipe = recipes[Math.floor(Math.random() * recipes.length)];
   
-        console.log(`🍽️ Order ${order.id} → Recipe: ${recipe.name}`);
+        Logger.log(`Order ${order.id} → Recipe: ${recipe.name}`);
   
         await this.orderRepository.update({
           id: order.id,
@@ -60,7 +61,7 @@ export default class GenerateRecipieUseCase implements UseCase<SQSMessageRequest
       }
     );
   
-    console.log('📊 GenerateRecipieUseCase assignments count', assignments.length);
+    Logger.log(`GenerateRecipieUseCase assignments count: ${assignments.length}`);
     const chunks = this.chunkAssignmentsForSNS(assignments);
 
     for (let index = 0; index < chunks.length; index++) {
@@ -72,7 +73,7 @@ export default class GenerateRecipieUseCase implements UseCase<SQSMessageRequest
       );
     }
   
-    console.log(`📢 SNS: Recipes published to topic ${Env.SNS_RECIPE_CREATED_ARN} in ${chunks.length} chunks`);
+    Logger.notify(`SNS: Recipes published to topic ${Env.SNS_RECIPE_CREATED_ARN} in ${chunks.length} chunks`);
   
     return assignments;
   }

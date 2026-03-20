@@ -61,10 +61,6 @@ describe('GetOrdersUseCase', () => {
       // Act
       const result = await useCase.execute({ limit: 1 });
 
-      console.log('--------------------------------');
-      console.log(result);
-      console.log('--------------------------------');
-
       // Assert
       expect(result.items.length).toEqual(1);
       expect(result.total).toEqual(2);

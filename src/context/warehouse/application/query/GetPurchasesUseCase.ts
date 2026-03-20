@@ -5,6 +5,7 @@ import PurchaseHistory from "../../domain/entity/PurchaseHistory";
 import types from "../../../../services/warehouse/functions/getPurchases/types";
 import { PaginatedResult } from "../../../shared/domain/database/PaginatedResult";
 import GetPurchaseHistoryRequest from "../../domain/ports/GetPurchaseHistoryRequest";
+import Logger from '../../../shared/domain/logger/Logger';
 
 @Injectable()
 export default class GetPurchasesUseCase implements UseCase<unknown, PaginatedResult<PurchaseHistory>> {
@@ -13,14 +14,14 @@ export default class GetPurchasesUseCase implements UseCase<unknown, PaginatedRe
     ) {}
 
     async execute(params: GetPurchaseHistoryRequest): Promise<PaginatedResult<PurchaseHistory>> {
-        console.log('🔵 GetPurchasesUseCase: params', params);
+        Logger.init(`GetPurchasesUseCase: params: ${params}`);
 
         const [result, total] = await Promise.all([
             this.purchaseHistoryRepository.getAll(params),
             this.purchaseHistoryRepository.count(params),
         ]);
 
-        console.log(`✅ GetPurchasesUseCase: fetched ${result.items.length} of ${total} purchases`);
+        Logger.log(`GetPurchasesUseCase: fetched ${result.items.length} of ${total} purchases`);
 
         return { ...result, total };
     }

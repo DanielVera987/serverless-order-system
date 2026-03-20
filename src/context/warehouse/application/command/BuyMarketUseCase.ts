@@ -10,6 +10,7 @@ import Env from '../../../../services/warehouse/config/Environment';
 import PurchaseHistoryRepositoryDomain from "../../domain/repository/PurchaseHistoryRepository";
 import { v4 as uuidv4 } from 'uuid';
 import PurchaseHistory from "../../domain/entity/PurchaseHistory";
+import Logger from '../../../shared/domain/logger/Logger';
 
 @Injectable()
 export default class BuyMarketUseCase implements UseCase<BuyMarketRequest, void> {
@@ -21,7 +22,7 @@ export default class BuyMarketUseCase implements UseCase<BuyMarketRequest, void>
   ) {}
 
   async execute(request: BuyMarketRequest): Promise<void> {
-    console.log('🚀 BuyMarketUseCase execute request', request);
+    Logger.init(`BuyMarketUseCase execute request: ${request}`);
 
     try {
       const allIngredients = await this.ingredientRepository.getAll();
@@ -35,7 +36,7 @@ export default class BuyMarketUseCase implements UseCase<BuyMarketRequest, void>
           const response = await this.farmersMarketRepository.buy({ name: ingredient.name });
 
           if (response.quantitySold === 0) {
-            console.log(`⚠️ Market has no ${ingredient.name}, attempt ${attempt + 1}`);
+            Logger.warn(`Market has no ${ingredient.name}, attempt ${attempt + 1}`);
             continue;
           }
 
@@ -61,17 +62,17 @@ export default class BuyMarketUseCase implements UseCase<BuyMarketRequest, void>
             createdAt: new Date().toISOString(),
           };
 
-          console.log('🔵 BuyMarketUseCase: purchaseHistory', purchaseHistory);
+          Logger.log(`BuyMarketUseCase: purchaseHistory: ${purchaseHistory}`);
 
           purchaseHistories.push(purchaseHistory);
 
-          console.log(`✅ Bought ${response.quantitySold} of ${ingredient.name} (${purchased}/${ingredient.quantity})`);
+          Logger.log(`Bought ${response.quantitySold} of ${ingredient.name} (${purchased}/${ingredient.quantity})`);
         }
       }));
 
       await this.purchaseHistoryRepository.create(purchaseHistories);
 
-      console.log('📊 BuyMarketUseCase: all ingredients purchased and restocked');
+      Logger.log('BuyMarketUseCase: all ingredients purchased and restocked');
 
       await this.notificationPublisher.publish(
         Env.SNS_INGREDIENTS_PURCHASED_ARN,
@@ -79,9 +80,9 @@ export default class BuyMarketUseCase implements UseCase<BuyMarketRequest, void>
         { assignments: request.assignments }
       );
 
-      console.log(`📢 SNS: ingredients purchased, ${request.assignments.length} orders re-sent to checkInventory`);
+      Logger.notify(`SNS: ingredients purchased, ${request.assignments.length} orders re-sent to checkInventory`);
     } catch (error) {
-      console.error(`❌ ${this.constructor.name}: Error buying from farmers market`, error);
+      Logger.error(`BuyMarketUseCase: Error buying from farmers market: ${error}`);
       throw new Error(`❌ ${this.constructor.name}: Error buying from farmers market`);
     }
   }

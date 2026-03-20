@@ -6,6 +6,7 @@ import IngredientRepository from '../../infrastructure/repository/IngredientRepo
 import { InventoryShortageRequest, OrderRecipeAssignment } from '../../domain/ports/InventoryCheckRequest';
 import Env from '../../../../services/warehouse/config/Environment';
 import types from '../../../../services/warehouse/functions/requestIngredients/types';
+import Logger from '../../../shared/domain/logger/Logger';
 
 @Injectable()
 export class RequestIngredientsUseCase implements UseCase<InventoryShortageRequest, void> {
@@ -16,7 +17,7 @@ export class RequestIngredientsUseCase implements UseCase<InventoryShortageReque
 
   async execute(request: InventoryShortageRequest): Promise<void> {
     const batchId = Date.now();
-    console.log(`🚀 RequestIngredientsUseCase: computing deficit for ${request.assignments.length} orders (batch ${batchId})`);
+    Logger.init(`RequestIngredientsUseCase: computing deficit for ${request.assignments.length} orders (batch ${batchId})`);
 
     const allIngredients = await this.ingredientRepository.getAll();
     const stockMap = new Map(allIngredients.map(i => [i.name, i]));
@@ -30,7 +31,7 @@ export class RequestIngredientsUseCase implements UseCase<InventoryShortageReque
       { ingredients, assignments: request.assignments },
     );
 
-    console.log(`📢 SNS: deficit published — ${ingredients.length} ingredient(s) needed for ${request.assignments.length} orders (batch ${batchId})`);
+    Logger.notify(`SNS: deficit published — ${ingredients.length} ingredient(s) needed for ${request.assignments.length} orders (batch ${batchId})`);
   }
 
   private calculateDeficit(

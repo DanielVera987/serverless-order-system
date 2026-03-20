@@ -5,6 +5,7 @@ import { Injectable, Inject } from "../../../../../../context/shared/infrastruct
 import { SQSBody } from "../../../../../../context/shared/infrastructure/controller/ControllerBase";
 import { BuyMarketRequest } from "../../../../../../context/warehouse/domain/ports/ByMarketRequest";
 import { SqsHandler } from "../../../../../../context/shared/infrastructure/controller/ControllerBase";
+import Logger from '../../../../../../context/shared/domain/logger/Logger';
 
 @Injectable()
 export class SQSController implements SqsHandler {
@@ -13,6 +14,7 @@ export class SQSController implements SqsHandler {
     ) {}
 
     async handleRecord(record: SQSRecord, body: SQSBody): Promise<void> {
+        Logger.init(`SQSController handleRecord: ${body}`);
         const message: BuyMarketRequest = JSON.parse(body.Message);
 
         await this.buyMarketUseCase.execute(message);

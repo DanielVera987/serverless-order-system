@@ -3,6 +3,7 @@ import { Injectable, Inject } from '../../../shared/infrastructure/di';
 import OrderRepository from '../../infrastructure/repository/OrderRepository';
 import { CompleteOrderRequest } from '../../domain/ports/CompleteOrderRequest';
 import { OrderStatus } from '../../../shared/domain/enums/OrderEnums';
+import Logger from '../../../shared/domain/logger/Logger';
 
 const TYPES = {
   OrderRepository: Symbol.for('OrderRepository'),
@@ -15,13 +16,13 @@ export class CompleteOrderUseCase implements UseCase<CompleteOrderRequest, void>
   ) {}
 
   async execute(request: CompleteOrderRequest): Promise<void> {
-    console.log(`🏁 CompleteOrderUseCase: completing ${request.assignments.length} orders`);
+    Logger.init(`CompleteOrderUseCase: completing ${request.assignments.length} orders`);
 
     for (const assignment of request.assignments) {
       const order = await this.orderRepository.get(assignment.orderId);
 
       if (!order) {
-        console.error(`❌ Order ${assignment.orderId} not found`);
+        Logger.error(`Order ${assignment.orderId} not found`);
         continue;
       }
 
@@ -31,7 +32,7 @@ export class CompleteOrderUseCase implements UseCase<CompleteOrderRequest, void>
         updatedAt: new Date().toISOString(),
       });
 
-      console.log(`✅ Order ${assignment.orderId} → ${OrderStatus.DELIVERED}`);
+      Logger.log(`Order ${assignment.orderId} → ${OrderStatus.DELIVERED}`);
     }
   }
 }

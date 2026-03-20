@@ -5,6 +5,7 @@ import IngredientRepositoryDomain from '../../domain/repository/IngredientReposi
 import Ingredient from '../../domain/entity/Ingredient';
 import { v4 as uuidv4 } from 'uuid';
 import types from '../../../../services/kitchen/functions/postIngredient/types';
+import Logger from '../../../shared/domain/logger/Logger';
 
 @Injectable()
 export class CreateIngredientUseCase implements UseCase<IngredientRequest, Ingredient> {
@@ -13,7 +14,7 @@ export class CreateIngredientUseCase implements UseCase<IngredientRequest, Ingre
   ) {}
 
   async execute(request: IngredientRequest): Promise<Ingredient> {
-    console.log('🚀 CreateIngredientUseCase execute request', request);
+    Logger.init(`CreateIngredientUseCase execute request: ${request}`);
 
     try {
       const ingredient: Ingredient = {
@@ -25,7 +26,7 @@ export class CreateIngredientUseCase implements UseCase<IngredientRequest, Ingre
 
       await this.ingredientRepository.create(ingredient);
 
-      console.log('📊 CreateIngredientUseCase ingredient created', ingredient);
+      Logger.log(`CreateIngredientUseCase ingredient created: ${ingredient}`);
 
       return ingredient;
     } catch (error) {

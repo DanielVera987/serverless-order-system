@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Order from '../../domain/entity/Order';
 import Env from '../../../../services/orders/config/Environment';
 import { OrderStatus } from '../../../shared/domain/enums/OrderEnums';
+import Logger from '../../../shared/domain/logger/Logger';
 
 @Injectable()
 export class CreateOrderUseCase implements UseCase<Request, Order[]> {
@@ -18,7 +19,7 @@ export class CreateOrderUseCase implements UseCase<Request, Order[]> {
   ) {}
 
   async execute(request: Request): Promise<Order[]> {
-    console.log('🚀 CreateOrderUseCase execute request', request);
+    Logger.init(`CreateOrderUseCase execute request: ${request}`);
 
     try {
       const lastNumber = await this.orderRepository.getNextOrderNumber(request.numberOrders);
@@ -27,7 +28,7 @@ export class CreateOrderUseCase implements UseCase<Request, Order[]> {
       const ordersData = this.createOrdersData(request.numberOrders, startNumber);
   
       await this.orderRepository.createBulk(ordersData);
-      console.log('📊 CreateOrderUseCase orders', ordersData);
+      Logger.log(`CreateOrderUseCase orders: ${ordersData}`);
   
       const chunks = this.chunkOrdersForSNS(ordersData);
   
@@ -36,7 +37,7 @@ export class CreateOrderUseCase implements UseCase<Request, Order[]> {
       return this.sortOrdersDesc(ordersData);
   
     } catch (error) {
-      console.error(`❌ ${this.constructor.name}: Error creating orders`, error);
+      Logger.error(`CreateOrderUseCase: Error creating orders: ${error}`);
       throw new Error(`❌ ${this.constructor.name}: Error creating orders`);
     }
   }
@@ -83,7 +84,7 @@ export class CreateOrderUseCase implements UseCase<Request, Order[]> {
       chunks.push(currentChunk);
     }
   
-    console.log(`📦 Total SNS chunks: ${chunks.length}`);
+    Logger.log(`CreateOrderUseCase Total SNS chunks: ${chunks.length}`);
   
     return chunks;
   }
@@ -101,7 +102,7 @@ export class CreateOrderUseCase implements UseCase<Request, Order[]> {
       )
     );
   
-    console.log(`📢 SNS: Published ${chunks.length} chunks`);
+    Logger.notify(`CreateOrderUseCase SNS: Published ${chunks.length} chunks`);
   }
 
   private sortOrdersDesc(orders: Order[]): Order[] {

@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import AI, { AIMessage, AIOptions } from "../../domain/artificial-intelligence/ai";
 import { Injectable } from "../di";
 import Environment from "../../../../services/artificial-intelligence/config/Environment";
+import Logger from "../../domain/logger/Logger";
 
 @Injectable()
 export default class GroqAI extends AI {
@@ -21,7 +22,7 @@ export default class GroqAI extends AI {
   }
 
   async chat(messages: AIMessage[], options?: AIOptions): Promise<string> {
-    console.log('🚀 Init GroqAI chat');
+    Logger.init('GroqAI chat');
 
     const response = await this.client.chat.completions.create({
       model: this.model,
@@ -30,7 +31,7 @@ export default class GroqAI extends AI {
       ...options
     });
 
-    console.log('🚀 Finished GroqAI chat');
+    Logger.log('GroqAI chat finished');
 
     return response.choices[0].message.content ?? "";
   }

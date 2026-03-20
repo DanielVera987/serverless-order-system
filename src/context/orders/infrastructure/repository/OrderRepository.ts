@@ -6,6 +6,7 @@ import TypesShared from '../../../shared/SharedTypes';
 import Order from '../../domain/entity/Order';
 import GetOrdersRequest from '../../domain/ports/GetOrdersRequest';
 import { v4 as uuidv4 } from 'uuid';
+import Logger from '../../../shared/domain/logger/Logger';
 
 @Injectable()
 class OrderRepository implements OrderRepositoryDomain {
@@ -31,13 +32,13 @@ class OrderRepository implements OrderRepositoryDomain {
 
             return await this.databaseAdapter.save(this.tableName, orderData);
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}: Error creating order`, error);
+            Logger.error(`OrderRepository: Error creating order: ${error}`);
             throw new Error(`❌ ${this.constructor.name}: Error creating order`);
         }
     }
 
     async createBulk(orders: Order[]): Promise<Order[]> {
-        console.log(`🔍 ${this.constructor.name}: Creating orders in bulk from ${this.tableName}`);
+        Logger.trace(`OrderRepository: Creating orders in bulk from ${this.tableName}`);
 
         try {
             const items = orders.map(order => ({
@@ -50,11 +51,11 @@ class OrderRepository implements OrderRepositoryDomain {
 
             const createdOrders = await this.databaseAdapter.insertBatch(this.tableName, items);
 
-            console.log(`✅ ${this.constructor.name}: Created ${createdOrders.length} orders in bulk`);
+            Logger.log(`✅ ${this.constructor.name}: Created ${createdOrders.length} orders in bulk`);
 
             return createdOrders;
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}: Error creating orders in bulk`, error);
+            Logger.error(`OrderRepository: Error creating orders in bulk: ${error}`);
             throw new Error(`❌ ${this.constructor.name}: Error creating orders in bulk`);
         }
     }
@@ -78,7 +79,7 @@ class OrderRepository implements OrderRepositoryDomain {
                 cursor: params?.nextToken ?? null,
             });
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}: Error fetching all orders`, error);
+            Logger.error(`OrderRepository: Error fetching all orders: ${error}`);
             throw new Error(`❌ ${this.constructor.name}: Error fetching all orders`);
         }
     }
@@ -98,7 +99,7 @@ class OrderRepository implements OrderRepositoryDomain {
                     : [],
             });
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}: Error counting orders`, error);
+            Logger.error(`OrderRepository: Error counting orders: ${error}`);
             throw new Error(`❌ ${this.constructor.name}: Error counting orders`);
         }
     }
@@ -107,7 +108,7 @@ class OrderRepository implements OrderRepositoryDomain {
         try {
             return await this.databaseAdapter.findById<Order>(this.tableName, { id });
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}: Error getting order`, error);
+            Logger.error(`OrderRepository: Error getting order: ${error}`);
             throw new Error(`❌ ${this.constructor.name}: Error getting order`);
         }
     }
@@ -124,7 +125,7 @@ class OrderRepository implements OrderRepositoryDomain {
 
             return await this.databaseAdapter.save(this.tableName, orderData);
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}: Error updating order`, error);
+            Logger.error(`OrderRepository: Error updating order: ${error}`);
             throw new Error(`❌ ${this.constructor.name}: Error updating order`);
         }
     }
@@ -133,7 +134,7 @@ class OrderRepository implements OrderRepositoryDomain {
         try {
             await this.databaseAdapter.remove(this.tableName, { id });
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}: Error deleting order`, error);
+            Logger.error(`OrderRepository: Error deleting order: ${error}`);
             throw new Error(`❌ ${this.constructor.name}: Error deleting order`);
         }
     }
@@ -147,7 +148,7 @@ class OrderRepository implements OrderRepositoryDomain {
                 count,
             );
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}: Error getting next order number`, error);
+            Logger.error(`OrderRepository: Error getting next order number: ${error}`);
             throw new Error(`❌ ${this.constructor.name}: Error getting next order number`);
         }
     }

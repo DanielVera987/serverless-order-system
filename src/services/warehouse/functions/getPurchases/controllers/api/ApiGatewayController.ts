@@ -6,6 +6,7 @@ import GetPurchaseHistoryRequest from "../../../../../../context/warehouse/domai
 import { PaginatedResult } from "../../../../../../context/shared/domain/database/PaginatedResult";
 import PurchaseHistory from "../../../../../../context/warehouse/domain/entity/PurchaseHistory";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import Logger from '../../../../../../context/shared/domain/logger/Logger';
 
 @Injectable()
 export class ApiGatewayController implements ApiGatewayHandler {
@@ -15,7 +16,7 @@ export class ApiGatewayController implements ApiGatewayHandler {
 
     async handle(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
         try {
-            console.log('🔵 ApiGatewayController: queryStringParameters', event.queryStringParameters);
+            Logger.init(`ApiGatewayController: queryStringParameters: ${event.queryStringParameters}`);
 
             let { limit, nextToken } = event.queryStringParameters ?? {};
 
@@ -32,7 +33,7 @@ export class ApiGatewayController implements ApiGatewayHandler {
 
             const result = await this.getPurchasesUseCase.execute(request);
 
-            console.log('🔵 ApiGatewayController: result', result);
+            Logger.log(`ApiGatewayController: result: ${result}`);
 
             return {
                 statusCode: 200,
@@ -47,7 +48,7 @@ export class ApiGatewayController implements ApiGatewayHandler {
                 }),
             };
         } catch (error) {
-            console.error(`❌ ${this.constructor.name}: Error getting purchases`, error);
+            Logger.error(`ApiGatewayController: Error getting purchases: ${error}`);
             throw new Error(`❌ ${this.constructor.name}: Error getting purchases`);
         }
     }

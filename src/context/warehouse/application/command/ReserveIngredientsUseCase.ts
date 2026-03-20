@@ -6,6 +6,7 @@ import IngredientRepository from '../../infrastructure/repository/IngredientRepo
 import { InventoryReadyRequest, OrderRecipeAssignment } from '../../domain/ports/InventoryCheckRequest';
 import Env from '../../../../services/warehouse/config/Environment';
 import types from '../../../../services/warehouse/functions/reserveIngredients/types';
+import Logger from '../../../shared/domain/logger/Logger';
 
 @Injectable()
 export class ReserveIngredientsUseCase implements UseCase<InventoryReadyRequest, void> {
@@ -16,7 +17,7 @@ export class ReserveIngredientsUseCase implements UseCase<InventoryReadyRequest,
 
   async execute(request: InventoryReadyRequest): Promise<void> {
     const batchId = Date.now();
-    console.log(`🚀 ReserveIngredientsUseCase: processing batch ${batchId} with ${request.assignments.length} orders`);
+    Logger.init(`ReserveIngredientsUseCase: processing batch ${batchId} with ${request.assignments.length} orders`);
 
     const allIngredients = await this.ingredientRepository.getAll();
     const stockMap = new Map(allIngredients.map(i => [i.name, i]));
@@ -33,10 +34,10 @@ export class ReserveIngredientsUseCase implements UseCase<InventoryReadyRequest,
           stockMap.set(ingredient.name, { ...record, quantity: record.quantity - ingredient.quantity });
         }
         successfulOrders.push(assignment);
-        console.log(`✅ Order ${assignment.orderId}: ingredients reserved for ${assignment.recipe.name}`);
+        Logger.log(`Order ${assignment.orderId}: ingredients reserved for ${assignment.recipe.name}`);
       } else {
         failedOrders.push(assignment);
-        console.log(`⚠️ Order ${assignment.orderId}: atomic reservation failed (race condition) for ${assignment.recipe.name}`);
+        Logger.warn(`Order ${assignment.orderId}: atomic reservation failed (race condition) for ${assignment.recipe.name}`);
       }
     }
 
@@ -67,7 +68,7 @@ export class ReserveIngredientsUseCase implements UseCase<InventoryReadyRequest,
       { assignments },
     );
 
-    console.log(`📢 SNS: ${assignments.length} orders published to order-ready (batch ${batchId})`);
+    Logger.notify(`SNS: ${assignments.length} orders published to order-ready (batch ${batchId})`);
   }
 
   private async publishFailedOrders(assignments: OrderRecipeAssignment[], batchId: number) {
@@ -79,6 +80,6 @@ export class ReserveIngredientsUseCase implements UseCase<InventoryReadyRequest,
       { assignments },
     );
 
-    console.log(`📢 SNS: ${assignments.length} orders re-routed to inventory-shortage due to race condition (batch ${batchId})`);
+    Logger.notify(`SNS: ${assignments.length} orders re-routed to inventory-shortage due to race condition (batch ${batchId})`);
   }
 }

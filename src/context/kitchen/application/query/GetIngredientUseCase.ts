@@ -3,6 +3,7 @@ import { Injectable, Inject } from '../../../shared/infrastructure/di';
 import IngredientRepositoryDomain from '../../domain/repository/IngredientRepository';
 import Ingredient from '../../domain/entity/Ingredient';
 import types from '../../../../services/kitchen/functions/getIngredients/Types';
+import Logger from '../../../shared/domain/logger/Logger';
 
 @Injectable()
 export default class GetIngredientsUseCase implements UseCase<unknown, Ingredient[]> {
@@ -13,10 +14,10 @@ export default class GetIngredientsUseCase implements UseCase<unknown, Ingredien
   async execute(): Promise<Ingredient[]> {
     try {
       const ingredients = await this.ingredientRepository.getAll();
-      console.log('📊 GetIngredientsUseCase ingredients', JSON.stringify(ingredients));
+      Logger.log(`GetIngredientsUseCase ingredients: ${JSON.stringify(ingredients)}`);
       return ingredients;
     } catch (error) {
-      console.error(`❌ GetIngredientsUseCase: Error getting all ingredients`, error);
+      Logger.error(`GetIngredientsUseCase: Error getting all ingredients: ${error}`);
       throw new Error(`❌ GetIngredientsUseCase: Error getting all ingredients`);
     }
   }

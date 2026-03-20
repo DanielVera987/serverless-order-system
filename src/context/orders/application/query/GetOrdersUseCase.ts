@@ -5,6 +5,7 @@ import { PaginatedResult } from '../../../shared/domain/database/PaginatedResult
 import Order from '../../domain/entity/Order';
 import types from '../../../../services/orders/functions/postOrders/types';
 import GetOrdersRequest from '../../domain/ports/GetOrdersRequest';
+import Logger from '../../../shared/domain/logger/Logger';
 
 @Injectable()
 export default class GetOrdersUseCase implements UseCase<GetOrdersRequest, PaginatedResult<Order>> {
@@ -14,14 +15,14 @@ export default class GetOrdersUseCase implements UseCase<GetOrdersRequest, Pagin
 
   async execute(params: GetOrdersRequest): Promise<PaginatedResult<Order>> {
     try {
-      console.log(`🚀 ${this.constructor.name} Fetching orders`);
+      Logger.init(`GetOrdersUseCase Fetching orders`);
 
       const [result, total] = await Promise.all([
         this.orderRepository.getAll(params),
         this.orderRepository.count(params),
       ]);
 
-      console.log(`✅ ${this.constructor.name} Successfully fetched ${result.items.length} of ${total} orders`);
+      Logger.log(`GetOrdersUseCase Successfully fetched ${result.items.length} of ${total} orders`);
 
       return { ...result, total };
     } catch (error) {

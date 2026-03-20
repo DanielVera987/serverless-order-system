@@ -1,5 +1,6 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult, SQSEvent, SQSRecord } from 'aws-lambda';
 import { withCors } from '../cors/CorsMiddleware';
+import Logger from '../../domain/logger/Logger';
 
 export interface SQSBody {
   Type: string;
@@ -42,24 +43,24 @@ export class ControllerBase {
 
   async execute(event: unknown): Promise<unknown> {
     if (this.isApiGateway(event) && this.controllers.api) {
-      console.log('🔵 ApiGatewayController Started', this.controllers.api.constructor.name);
+      Logger.init(`ApiGatewayController Started: ${this.controllers.api.constructor.name}`);
       const result = await this.controllers.api.handle(event);
-      console.log('✅ ApiGatewayController Finished');
+      Logger.log(`ApiGatewayController Finished`);
       return withCors(event, result);
     }
   
     if (this.isSqs(event) && this.controllers.sqs) {
       const records = (event as SQSEvent).Records;
   
-      console.log('🔵 SQSController Started', this.controllers.sqs.constructor.name);
-      console.log(`📦 SQS Records count: ${records.length}`);
+      Logger.init(`SQSController Started: ${this.controllers.sqs.constructor.name}`);
+      Logger.log(`SQS Records count: ${records.length}`);
   
       for (const record of records) {
         const body = JSON.parse(record.body);
         await this.controllers.sqs!.handleRecord(record, body);
       }
   
-      console.log('✅ SQSController Finished');
+      Logger.log(`SQSController Finished`);
       return;
     }
   

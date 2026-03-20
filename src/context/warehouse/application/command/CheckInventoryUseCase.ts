@@ -6,6 +6,7 @@ import IngredientRepository from '../../infrastructure/repository/IngredientRepo
 import { InventoryCheckRequest, OrderRecipeAssignment } from '../../domain/ports/InventoryCheckRequest';
 import Env from '../../../../services/warehouse/config/Environment';
 import types from '../../../../services/warehouse/functions/checkInventory/types';
+import Logger from '../../../shared/domain/logger/Logger';
 
 @Injectable()
 export class CheckInventoryUseCase implements UseCase<InventoryCheckRequest, void> {
@@ -16,7 +17,7 @@ export class CheckInventoryUseCase implements UseCase<InventoryCheckRequest, voi
 
   async execute(request: InventoryCheckRequest): Promise<void> {
     const batchId = Date.now();
-    console.log(`🚀 CheckInventoryUseCase: classifying batch ${batchId} with ${request.assignments.length} orders`);
+    Logger.init(`CheckInventoryUseCase: classifying batch ${batchId} with ${request.assignments.length} orders`);
 
     const allIngredients = await this.ingredientRepository.getAll();
     const stockMap = new Map(allIngredients.map(i => [i.name, i]));
@@ -32,10 +33,10 @@ export class CheckInventoryUseCase implements UseCase<InventoryCheckRequest, voi
 
       if (hasStock) {
         readyAssignments.push(assignment);
-        console.log(`✅ Order ${assignment.orderId}: stock available for ${assignment.recipe.name}`);
+        Logger.log(`Order ${assignment.orderId}: stock available for ${assignment.recipe.name}`);
       } else {
         shortageAssignments.push(assignment);
-        console.log(`⚠️ Order ${assignment.orderId}: stock shortage for ${assignment.recipe.name}`);
+        Logger.warn(`Order ${assignment.orderId}: stock shortage for ${assignment.recipe.name}`);
       }
     }
 
@@ -52,7 +53,7 @@ export class CheckInventoryUseCase implements UseCase<InventoryCheckRequest, voi
       { assignments },
     );
 
-    console.log(`📢 SNS: ${assignments.length} orders published to inventory-ready (batch ${batchId})`);
+    Logger.notify(`SNS: ${assignments.length} orders published to inventory-ready (batch ${batchId})`);
   }
 
   private async publishShortageAssignments(assignments: OrderRecipeAssignment[], batchId: number) {
@@ -64,6 +65,6 @@ export class CheckInventoryUseCase implements UseCase<InventoryCheckRequest, voi
       { assignments },
     );
 
-    console.log(`📢 SNS: ${assignments.length} orders published to inventory-shortage (batch ${batchId})`);
+    Logger.notify(`SNS: ${assignments.length} orders published to inventory-shortage (batch ${batchId})`);
   }
 }
