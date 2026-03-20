@@ -4,7 +4,7 @@ import { SQSMessageRequest } from '../../domain/ports/SQSRequest';
 import { getRandomRecipe } from '../../domain/catalog/RecipesCatalog';
 import Recipe from '../../domain/entity/Recipe';
 import OrderRepositoryDomain from '../../domain/repository/OrderRepository';
-import types from '../../../../services/kitchen/functions/generateRecipes/types';
+import types from '../../../kitchen/Types';
 import TypesShared from '../../../shared/SharedTypes';
 import { NotificationPublisher } from '../../../shared/domain/notification/NotificationPublisher';
 import Env from '../../../../services/kitchen/config/Environment';

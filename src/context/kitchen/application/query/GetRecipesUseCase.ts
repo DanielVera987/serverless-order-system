@@ -1,7 +1,7 @@
 import { Injectable, Inject } from "../../../shared/infrastructure/di";
 import Recipe from "../../domain/entity/Recipe";
 import { UseCase } from "../../../shared/domain/UseCase";
-import types from "../../../../services/kitchen/functions/getRecipes/types";
+import types from "../../../kitchen/Types";
 import RecipeRepositoryDomain from "../../../kitchen/domain/repository/RecipeRepository";
 
 @Injectable()

@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Container } from 'inversify';
-import types from './Types';
+import types from '../../../../context/kitchen/Types';
 import GetIngredientsUseCase from '../../../../context/kitchen/application/query/GetIngredientUseCase';
 import { UseCase } from '../../../../context/shared/domain/UseCase';
 import IngredientRepository from '../../../../context/kitchen/infrastructure/repository/IngredientRepository';

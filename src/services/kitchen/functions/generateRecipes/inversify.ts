@@ -1,5 +1,5 @@
 import { Container } from 'inversify';
-import types from './types';
+import types from '../../../../context/kitchen/Types';
 import { SQSController } from './controllers/sqs/SQSController';
 import { SqsHandler } from '../../../../context/shared/infrastructure/controller/ControllerBase';
 import { UseCase } from '../../../../context/shared/domain/UseCase';

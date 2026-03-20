@@ -1,5 +1,5 @@
 import { Container } from 'inversify';
-import types from './types';
+import types from '../../../../context/kitchen/Types';
 import GetRecipesUseCase from '../../../../context/kitchen/application/query/GetRecipesUseCase';
 import RecipeRepository from '../../../../context/kitchen/infrastructure/repository/RecipeRepository';
 import RecipeRepositoryDomain from '../../../../context/kitchen/domain/repository/RecipeRepository';

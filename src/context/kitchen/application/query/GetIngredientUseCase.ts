@@ -2,7 +2,7 @@ import { UseCase } from '../../../shared/domain/UseCase';
 import { Injectable, Inject } from '../../../shared/infrastructure/di';
 import IngredientRepositoryDomain from '../../domain/repository/IngredientRepository';
 import Ingredient from '../../domain/entity/Ingredient';
-import types from '../../../../services/kitchen/functions/getIngredients/Types';
+import types from '../../../kitchen/Types';
 import Logger from '../../../shared/domain/logger/Logger';
 
 @Injectable()

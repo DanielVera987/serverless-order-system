@@ -4,7 +4,7 @@ import { IngredientRequest } from '../../domain/ports/IngredientRequest';
 import IngredientRepositoryDomain from '../../domain/repository/IngredientRepository';
 import Ingredient from '../../domain/entity/Ingredient';
 import { v4 as uuidv4 } from 'uuid';
-import types from '../../../../services/kitchen/functions/postIngredient/types';
+import types from '../../../kitchen/Types';
 import Logger from '../../../shared/domain/logger/Logger';
 
 @Injectable()
