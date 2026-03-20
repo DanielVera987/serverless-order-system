@@ -3,7 +3,7 @@ import OrderRepository from '../../domain/repository/OrderRepository';
 import { UseCase } from '../../../shared/domain/UseCase';
 import { PaginatedResult } from '../../../shared/domain/database/PaginatedResult';
 import Order from '../../domain/entity/Order';
-import types from '../../../../services/orders/functions/postOrders/types';
+import types from '../../../orders/Types';
 import GetOrdersRequest from '../../domain/ports/GetOrdersRequest';
 import Logger from '../../../shared/domain/logger/Logger';
 

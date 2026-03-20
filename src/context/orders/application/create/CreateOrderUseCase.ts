@@ -3,7 +3,7 @@ import { Request } from '../../../../context/orders/domain/ports/Request';
 import { Inject, Injectable } from '../../../../context/shared/infrastructure/di';
 import OrderRepositoryDomain from '../../domain/repository/OrderRepository'
 import { NotificationPublisher } from '../../../shared/domain/notification/NotificationPublisher';
-import types from '../../../../services/orders/functions/postOrders/types'
+import types from '../../../orders/Types'
 import TypesShared from '../../../shared/SharedTypes';
 import { v4 as uuidv4 } from 'uuid';
 import Order from '../../domain/entity/Order';
