@@ -6,6 +6,8 @@ import GetOrdersRequest from '../../../../../../context/orders/domain/ports/GetO
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { Injectable, Inject } from '../../../../../../context/shared/infrastructure/di';
 import { ApiGatewayHandler } from '../../../../../../context/shared/infrastructure/controller/ControllerBase';
+import Logger from '../../../../../../context/shared/domain/logger/Logger';
+import HttpErrorResponse from '../../../../../../context/shared/infrastructure/http/httpErrorResponse';
 
 @Injectable()
 export class ApiGatewayController implements ApiGatewayHandler {
@@ -49,12 +51,8 @@ export class ApiGatewayController implements ApiGatewayHandler {
         }),
       };
     } catch (error) {
-      console.error(`❌ Error in ${this.constructor.name}:`, error);
-
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ message: 'Internal Server Error', data: [] }),
-      };
+      Logger.error(`${this.constructor.name}: Error getting orders`, error);
+      return HttpErrorResponse(error);
     }
   }
 }

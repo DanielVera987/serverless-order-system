@@ -5,6 +5,8 @@ import { Request } from '../../../../../../context/orders/domain/ports/Request';
 import { UseCase } from '../../../../../../context/shared/domain/UseCase';
 import types from '../../../../../../context/orders/Types';
 import Order from '../../../../../../context/orders/domain/entity/Order';
+import Logger from '../../../../../../context/shared/domain/logger/Logger';
+import HttpErrorResponse from '../../../../../../context/shared/infrastructure/http/httpErrorResponse';
 
 @Injectable()
 export class ApiGatewayController implements ApiGatewayHandler {
@@ -15,19 +17,25 @@ export class ApiGatewayController implements ApiGatewayHandler {
   async handle(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
     const body: Request = JSON.parse(event.body || '{}');
 
-    const error = this.validateBody(body);
-    if (error) {
-      return { statusCode: 400, body: JSON.stringify({ error }) };
+    const validationError = this.validateBody(body);
+    if (validationError) {
+      return { statusCode: 400, body: JSON.stringify({ error: validationError }) };
     }
 
-    // TODO: How handler to error?
-    const response = await this.createOrderUseCase.execute(body);
-
-    return { statusCode: 200, body: JSON.stringify({ 
-      status: 'success',
-      message: 'Orders created successfully', 
-      data: response
-    }) };
+    try {
+      const response = await this.createOrderUseCase.execute(body);
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          status: 'success',
+          message: 'Orders created successfully',
+          data: response,
+        }),
+      };
+    } catch (error) {
+      Logger.error(`${this.constructor.name}: Error creating orders`, error);
+      return HttpErrorResponse(error);
+    }
   }
 
   private validateBody(body: Request): string | null {
