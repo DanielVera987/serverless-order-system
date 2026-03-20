@@ -1,4 +1,4 @@
-import { DynamoDBAdapter } from '../../../shared/domain/database/DynamoDBAdapter';
+import { DatabaseAdapter } from '../../../shared/domain/database/DatabaseAdapter';
 import { Injectable, Inject } from '../../../shared/infrastructure/di';
 import TypesShared from '../../../shared/SharedTypes';
 import Ingredient from '../../domain/entity/Ingredient';
@@ -9,7 +9,7 @@ export default class IngredientRepository implements IngredientRepositoryDomain 
     private readonly tableName = process.env.INGREDIENTS_TABLE ?? 'ingredients';
 
     constructor(
-        @Inject(TypesShared.DynamoDBAdapter) private readonly dynamoDBAdapter: DynamoDBAdapter
+        @Inject(TypesShared.DatabaseAdapter) private readonly databaseAdapter: DatabaseAdapter
     ) {}
 
     async create(ingredient: Ingredient): Promise<Ingredient> {
@@ -21,7 +21,7 @@ export default class IngredientRepository implements IngredientRepositoryDomain 
                 createdAt: ingredient.createdAt!,
             };
 
-            return await this.dynamoDBAdapter.update(this.tableName, item);
+            return await this.databaseAdapter.save(this.tableName, item);
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error creating ingredient`, error);
             throw new Error(`❌ ${this.constructor.name}: Error creating ingredient`);
@@ -37,7 +37,7 @@ export default class IngredientRepository implements IngredientRepositoryDomain 
                 createdAt: ingredient.createdAt!,
             }));
 
-            return await this.dynamoDBAdapter.createBulk(this.tableName, items);
+            return await this.databaseAdapter.insertBatch(this.tableName, items);
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error creating ingredients in bulk`, error);
             throw new Error(`❌ ${this.constructor.name}: Error creating ingredients in bulk`);
@@ -46,8 +46,7 @@ export default class IngredientRepository implements IngredientRepositoryDomain 
 
     async getAll(): Promise<Ingredient[]> {
         try {
-            const items = await this.dynamoDBAdapter.scan(this.tableName, {});
-            return items as Ingredient[];
+            return await this.databaseAdapter.findAll<Ingredient>(this.tableName);
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error getting all ingredients`, error);
             throw new Error(`❌ ${this.constructor.name}: Error getting all ingredients`);
@@ -56,8 +55,7 @@ export default class IngredientRepository implements IngredientRepositoryDomain 
 
     async get(id: string): Promise<Ingredient | null> {
         try {
-            const item = await this.dynamoDBAdapter.get(this.tableName, { id });
-            return item as Ingredient;
+            return await this.databaseAdapter.findById<Ingredient>(this.tableName, { id });
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error getting ingredient`, error);
             throw new Error(`❌ ${this.constructor.name}: Error getting ingredient`);
@@ -74,7 +72,7 @@ export default class IngredientRepository implements IngredientRepositoryDomain 
                 updatedAt: ingredient.updatedAt!,
             };
 
-            return await this.dynamoDBAdapter.update(this.tableName, item);
+            return await this.databaseAdapter.save(this.tableName, item);
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error updating ingredient`, error);
             throw new Error(`❌ ${this.constructor.name}: Error updating ingredient`);
@@ -83,7 +81,7 @@ export default class IngredientRepository implements IngredientRepositoryDomain 
 
     async delete(id: string): Promise<void> {
         try {
-            await this.dynamoDBAdapter.delete(this.tableName, { id });
+            await this.databaseAdapter.remove(this.tableName, { id });
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error deleting ingredient`, error);
             throw new Error(`❌ ${this.constructor.name}: Error deleting ingredient`);

@@ -11,13 +11,13 @@ import { PaginatedResult } from "../../../../context/shared/domain/database/Pagi
 import PurchaseHistory from "../../../../context/warehouse/domain/entity/PurchaseHistory";
 import { DynamoDBAdapter } from "../../../../context/shared/infrastructure/database/DynamoDBAdapter";
 import TypesShared from "../../../../context/shared/SharedTypes";
-import { DynamoDBAdapter as DynamoDBAdapterDomain } from "../../../../context/shared/domain/database/DynamoDBAdapter";
+import { DatabaseAdapter } from "../../../../context/shared/domain/database/DatabaseAdapter";
 
 const container = new Container();
 
 container.bind<ApiGatewayHandler>(types.ApiGatewayController).to(ApiGatewayController);
 container.bind<UseCase<GetPurchaseHistoryRequest, PaginatedResult<PurchaseHistory>>>(types.GetPurchasesUseCase).to(GetPurchasesUseCase);
 container.bind<PurchaseHistoryRepositoryDomain>(types.PurchaseHistoryRepository).to(PurchaseHistoryRepository);
-container.bind<DynamoDBAdapterDomain>(TypesShared.DynamoDBAdapter).to(DynamoDBAdapter);
+container.bind<DatabaseAdapter>(TypesShared.DatabaseAdapter).to(DynamoDBAdapter);
 
 export default container;

@@ -10,7 +10,7 @@ import IngredientRepositoryDomain from '../../../../context/warehouse/domain/rep
 import IngredientRepository from '../../../../context/warehouse/infrastructure/repository/IngredientRepository';
 import FarmersMarketRepositoryDomain from '../../../../context/warehouse/domain/repository/FarmersMarketRepository';
 import FarmersMarketRepository from '../../../../context/warehouse/infrastructure/repository/FarmersMarketRepository';
-import { DynamoDBAdapter as DynamoDBAdapterDomain } from '../../../../context/shared/domain/database/DynamoDBAdapter';
+import { DatabaseAdapter } from '../../../../context/shared/domain/database/DatabaseAdapter';
 import { DynamoDBAdapter } from '../../../../context/shared/infrastructure/database/DynamoDBAdapter';
 import { NotificationPublisher } from '../../../../context/shared/domain/notification/NotificationPublisher';
 import { SNSNotificationPublisher } from '../../../../context/shared/infrastructure/notification/SNSNotificationPublisher';
@@ -23,7 +23,7 @@ import PurchaseHistoryRepository from '../../../../context/warehouse/infrastruct
 const container = new Container();
 
 container.bind<SqsHandler>(Types.SQSController).to(SQSController);
-container.bind<DynamoDBAdapterDomain>(TypesShared.DynamoDBAdapter).to(DynamoDBAdapter);
+container.bind<DatabaseAdapter>(TypesShared.DatabaseAdapter).to(DynamoDBAdapter);
 container.bind<NotificationPublisher>(TypesShared.NotificationPublisher).to(SNSNotificationPublisher);
 container.bind<Http>(TypesShared.Http).to(HttpAxios);
 container.bind<FarmersMarketRepositoryDomain>(Types.FarmersMarketRepository).to(FarmersMarketRepository);

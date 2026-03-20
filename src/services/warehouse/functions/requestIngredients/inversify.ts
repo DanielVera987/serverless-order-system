@@ -6,7 +6,7 @@ import { UseCase } from '../../../../context/shared/domain/UseCase';
 import { RequestIngredientsUseCase } from '../../../../context/warehouse/application/command/RequestIngredientsUseCase';
 import { InventoryShortageRequest } from '../../../../context/warehouse/domain/ports/InventoryCheckRequest';
 import IngredientRepository from '../../../../context/warehouse/infrastructure/repository/IngredientRepository';
-import { DynamoDBAdapter as DynamoDBAdapterDomain } from '../../../../context/shared/domain/database/DynamoDBAdapter';
+import { DatabaseAdapter } from '../../../../context/shared/domain/database/DatabaseAdapter';
 import { DynamoDBAdapter } from '../../../../context/shared/infrastructure/database/DynamoDBAdapter';
 import { NotificationPublisher } from '../../../../context/shared/domain/notification/NotificationPublisher';
 import { SNSNotificationPublisher } from '../../../../context/shared/infrastructure/notification/SNSNotificationPublisher';
@@ -16,7 +16,7 @@ import TypesShared from '../../../../context/shared/SharedTypes';
 const container = new Container();
 
 container.bind<SqsHandler>(types.SQSController).to(SQSController);
-container.bind<DynamoDBAdapterDomain>(TypesShared.DynamoDBAdapter).to(DynamoDBAdapter);
+container.bind<DatabaseAdapter>(TypesShared.DatabaseAdapter).to(DynamoDBAdapter);
 container.bind<NotificationPublisher>(TypesShared.NotificationPublisher).to(SNSNotificationPublisher);
 container.bind<IngredientRepositoryDomain>(types.IngredientRepository).to(IngredientRepository);
 container.bind<UseCase<InventoryShortageRequest, void>>(types.RequestIngredientsUseCase).to(RequestIngredientsUseCase);

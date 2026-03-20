@@ -8,7 +8,7 @@ import { UseCase } from '../../../../context/shared/domain/UseCase';
 import { ApiGatewayHandler } from '../../../../context/shared/infrastructure/controller/ControllerBase';
 import ApiGatewayController from './controllers/api/ApiGatewayController';
 import { DynamoDBAdapter } from '../../../../context/shared/infrastructure/database/DynamoDBAdapter';
-import { DynamoDBAdapter as DynamoDBAdapterDomain } from '../../../../context/shared/domain/database/DynamoDBAdapter';
+import { DatabaseAdapter } from '../../../../context/shared/domain/database/DatabaseAdapter';
 import TypesShared from '../../../../context/shared/SharedTypes';
 
 const container = new Container();
@@ -16,6 +16,6 @@ const container = new Container();
 container.bind<UseCase<unknown, Recipe[]>>(types.GetRecipesUseCase).to(GetRecipesUseCase);
 container.bind<RecipeRepositoryDomain>(types.RecipeRepository).to(RecipeRepository);
 container.bind<ApiGatewayHandler>(types.ApiGatewayController).to(ApiGatewayController);
-container.bind<DynamoDBAdapterDomain>(TypesShared.DynamoDBAdapter).to(DynamoDBAdapter);
+container.bind<DatabaseAdapter>(TypesShared.DatabaseAdapter).to(DynamoDBAdapter);
 
 export default container;

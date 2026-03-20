@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "../../../shared/infrastructure/di";
 import TypesShared from "../../../shared/SharedTypes";
-import { DynamoDBAdapter } from "../../../shared/domain/database/DynamoDBAdapter";
+import { DatabaseAdapter } from "../../../shared/domain/database/DatabaseAdapter";
 import RecipeRepositoryDomain from "../../domain/repository/RecipeRepository";
 import Recipe from "../../../kitchen/domain/entity/Recipe";
 
@@ -9,7 +9,7 @@ export default class RecipeRepository implements RecipeRepositoryDomain {
     private readonly tableName = process.env.TABLE_RECIPES_DYNAMODB ?? 'recipes';
 
     constructor(
-        @Inject(TypesShared.DynamoDBAdapter) private readonly dynamoDBAdapter: DynamoDBAdapter
+        @Inject(TypesShared.DatabaseAdapter) private readonly databaseAdapter: DatabaseAdapter
     ) {}
 
     async createBulk(recipes: Recipe[]): Promise<Recipe[]> {
@@ -22,7 +22,7 @@ export default class RecipeRepository implements RecipeRepositoryDomain {
                 updatedAt: recipe.updatedAt,
             }));
 
-            return await this.dynamoDBAdapter.createBulk(this.tableName, items);
+            return await this.databaseAdapter.insertBatch(this.tableName, items);
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error creating bulk recipes`, error);
             throw new Error(`❌ ${this.constructor.name}: Error creating bulk recipes`);
@@ -31,15 +31,13 @@ export default class RecipeRepository implements RecipeRepositoryDomain {
 
     async update(recipe: Recipe): Promise<Recipe> {
         try {
-            const item = await this.dynamoDBAdapter.update<Record<string, unknown>>(this.tableName, {
+            return await this.databaseAdapter.save(this.tableName, {
                 id: recipe.id,
                 name: recipe.name,
                 ingredients: recipe.ingredients,
                 createdAt: recipe.createdAt,
                 updatedAt: recipe.updatedAt,
-            });
-
-            return item as unknown as Recipe;
+            }) as unknown as Recipe;
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error updating recipe`, error);
             throw new Error(`❌ ${this.constructor.name}: Error updating recipe`);

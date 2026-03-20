@@ -1,4 +1,4 @@
-import { DynamoDBAdapter } from '../../../shared/domain/database/DynamoDBAdapter';
+import { DatabaseAdapter } from '../../../shared/domain/database/DatabaseAdapter';
 import { Injectable, Inject } from '../../../shared/infrastructure/di';
 import TypesShared from '../../../shared/SharedTypes';
 import Order from '../../domain/entity/Order';
@@ -9,12 +9,12 @@ export default class OrderRepository implements OrderRepositoryDomain {
     private readonly tableName = process.env.ORDERS_TABLE ?? 'orders';
 
     constructor(
-        @Inject(TypesShared.DynamoDBAdapter) private readonly dynamoDBAdapter: DynamoDBAdapter
+        @Inject(TypesShared.DatabaseAdapter) private readonly databaseAdapter: DatabaseAdapter
     ) {}
 
     async get(id: string): Promise<Order | null> {
         try {
-            return await this.dynamoDBAdapter.get<Order>(this.tableName, { id });
+            return await this.databaseAdapter.findById<Order>(this.tableName, { id });
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error getting order`, error);
             throw new Error(`❌ ${this.constructor.name}: Error getting order`);
@@ -34,7 +34,7 @@ export default class OrderRepository implements OrderRepositoryDomain {
                 updatedAt: order.updatedAt,
             };
 
-            return await this.dynamoDBAdapter.update(this.tableName, orderData);
+            return await this.databaseAdapter.save(this.tableName, orderData);
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error updating order`, error);
             throw new Error(`❌ ${this.constructor.name}: Error updating order`);

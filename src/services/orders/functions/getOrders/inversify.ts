@@ -7,7 +7,7 @@ import OrderRepositoryDomain from '../../../../context/orders/domain/repository/
 import GetOrdersUseCase from '../../../../context/orders/application/query/GetOrdersUseCase';
 import { UseCase } from '../../../../context/shared/domain/UseCase';
 import Order from '../../../../context/orders/domain/entity/Order';
-import { DynamoDBAdapter as DynamoDBAdapterDomain } from '../../../../context/shared/domain/database/DynamoDBAdapter';
+import { DatabaseAdapter } from '../../../../context/shared/domain/database/DatabaseAdapter';
 import TypesShared from '../../../../context/shared/SharedTypes';
 import { DynamoDBAdapter } from '../../../../context/shared/infrastructure/database/DynamoDBAdapter';
 import GetOrdersRequest from '../../../../context/orders/domain/ports/GetOrdersRequest';
@@ -18,6 +18,6 @@ const container = new Container();
 container.bind<ApiGatewayHandler>(types.ApiGatewayController).to(ApiGatewayController);
 container.bind<OrderRepositoryDomain>(types.OrderRepository).to(OrderRepository);
 container.bind<UseCase<GetOrdersRequest, PaginatedResult<Order>>>(types.GetOrdersUseCase).to(GetOrdersUseCase);
-container.bind<DynamoDBAdapterDomain>(TypesShared.DynamoDBAdapter).to(DynamoDBAdapter);
+container.bind<DatabaseAdapter>(TypesShared.DatabaseAdapter).to(DynamoDBAdapter);
 
 export default container;

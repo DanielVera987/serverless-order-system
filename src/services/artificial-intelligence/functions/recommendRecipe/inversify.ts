@@ -13,7 +13,7 @@ import Http from '../../../../context/shared/domain/http/Http';
 import HttpAxios from '../../../../context/shared/infrastructure/http/HttpAxios';
 import RecipeRepository from '../../../../context/artificial-intelligence/infrastructure/repository/RecipeRepository';
 import RecipeRepositoryDomain from '../../../../context/artificial-intelligence/domain/repository/RecipeRepository';
-import { DynamoDBAdapter as DynamoDBAdapterDomain } from '../../../../context/shared/domain/database/DynamoDBAdapter';
+import { DatabaseAdapter } from '../../../../context/shared/domain/database/DatabaseAdapter';
 import { DynamoDBAdapter } from '../../../../context/shared/infrastructure/database/DynamoDBAdapter';
 
 
@@ -25,6 +25,6 @@ container.bind<Http>(TypesShared.Http).to(HttpAxios);
 container.bind<UseCase<string, string>>(types.RecommendRecipeUseCase).to(RecommendRecipeUseCase);
 container.bind<IngredientsRepositoryDomain>(types.IngredientsRepository).to(IngredientsRepository);
 container.bind<RecipeRepositoryDomain>(types.RecipeRepository).to(RecipeRepository);
-container.bind<DynamoDBAdapterDomain>(TypesShared.DynamoDBAdapter).to(DynamoDBAdapter);
+container.bind<DatabaseAdapter>(TypesShared.DatabaseAdapter).to(DynamoDBAdapter);
 
 export default container;

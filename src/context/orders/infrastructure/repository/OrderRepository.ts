@@ -1,5 +1,5 @@
 import OrderRepositoryDomain from '../../domain/repository/OrderRepository';
-import { DynamoDBAdapter } from "../../../shared/domain/database/DynamoDBAdapter"
+import { DatabaseAdapter } from '../../../shared/domain/database/DatabaseAdapter';
 import { PaginatedResult } from '../../../shared/domain/database/PaginatedResult';
 import { Injectable, Inject } from '../../../shared/infrastructure/di';
 import TypesShared from '../../../shared/SharedTypes';
@@ -16,7 +16,7 @@ class OrderRepository implements OrderRepositoryDomain {
     private static readonly MAX_LIMIT = 500;
 
     constructor(
-        @Inject(TypesShared.DynamoDBAdapter) private readonly dynamoDBAdapter: DynamoDBAdapter
+        @Inject(TypesShared.DatabaseAdapter) private readonly databaseAdapter: DatabaseAdapter
     ) {}
 
     async create(order: Order): Promise<Order> {
@@ -29,7 +29,7 @@ class OrderRepository implements OrderRepositoryDomain {
                 createdAt: order.createdAt,
             };
 
-            return await this.dynamoDBAdapter.update(this.tableName, orderData);
+            return await this.databaseAdapter.save(this.tableName, orderData);
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error creating order`, error);
             throw new Error(`❌ ${this.constructor.name}: Error creating order`);
@@ -48,7 +48,7 @@ class OrderRepository implements OrderRepositoryDomain {
                 createdAt: order.createdAt,
             }));
 
-            const createdOrders = await this.dynamoDBAdapter.createBulk(this.tableName, items);
+            const createdOrders = await this.databaseAdapter.insertBatch(this.tableName, items);
 
             console.log(`✅ ${this.constructor.name}: Created ${createdOrders.length} orders in bulk`);
 
@@ -62,15 +62,20 @@ class OrderRepository implements OrderRepositoryDomain {
     async getAll(params?: GetOrdersRequest): Promise<PaginatedResult<Order>> {
         try {
             const limit = Math.min(params?.limit ?? OrderRepository.DEFAULT_LIMIT, OrderRepository.MAX_LIMIT);
-            const filter = this.buildFilterExpression(params);
+            const statuses = this.parseStatuses(params?.status);
 
-            return await this.dynamoDBAdapter.queryPage<Order>(this.tableName, {
-                indexName: OrderRepository.GSI_NAME,
+            return await this.databaseAdapter.findPage<Order>(this.tableName, {
+                index: {
+                    name: OrderRepository.GSI_NAME,
+                    partitionKey: 'entityType',
+                    partitionValue: OrderRepository.ENTITY_TYPE,
+                    sortAscending: false,
+                },
+                where: statuses.length > 0
+                    ? [{ field: 'status', operator: 'in', value: statuses }]
+                    : [],
                 limit,
-                nextToken: params?.nextToken ?? undefined,
-                keyConditionExpression: 'entityType = :entityType',
-                scanIndexForward: false,
-                ...filter,
+                cursor: params?.nextToken ?? null,
             });
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error fetching all orders`, error);
@@ -80,12 +85,17 @@ class OrderRepository implements OrderRepositoryDomain {
 
     async count(params?: GetOrdersRequest): Promise<number> {
         try {
-            const filter = this.buildFilterExpression(params);
+            const statuses = this.parseStatuses(params?.status);
 
-            return await this.dynamoDBAdapter.count(this.tableName, {
-                indexName: OrderRepository.GSI_NAME,
-                keyConditionExpression: 'entityType = :entityType',
-                ...filter,
+            return await this.databaseAdapter.count(this.tableName, {
+                index: {
+                    name: OrderRepository.GSI_NAME,
+                    partitionKey: 'entityType',
+                    partitionValue: OrderRepository.ENTITY_TYPE,
+                },
+                where: statuses.length > 0
+                    ? [{ field: 'status', operator: 'in', value: statuses }]
+                    : [],
             });
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error counting orders`, error);
@@ -95,8 +105,7 @@ class OrderRepository implements OrderRepositoryDomain {
 
     async get(id: string): Promise<Order | null> {
         try {
-            const order = await this.dynamoDBAdapter.get<Order>(this.tableName, { id });
-            return order ?? null;
+            return await this.databaseAdapter.findById<Order>(this.tableName, { id });
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error getting order`, error);
             throw new Error(`❌ ${this.constructor.name}: Error getting order`);
@@ -113,7 +122,7 @@ class OrderRepository implements OrderRepositoryDomain {
                 createdAt: order.createdAt,
             };
 
-            return await this.dynamoDBAdapter.update(this.tableName, orderData);
+            return await this.databaseAdapter.save(this.tableName, orderData);
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error updating order`, error);
             throw new Error(`❌ ${this.constructor.name}: Error updating order`);
@@ -122,7 +131,7 @@ class OrderRepository implements OrderRepositoryDomain {
 
     async delete(id: string): Promise<void> {
         try {
-            await this.dynamoDBAdapter.delete(this.tableName, { id });
+            await this.databaseAdapter.remove(this.tableName, { id });
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error deleting order`, error);
             throw new Error(`❌ ${this.constructor.name}: Error deleting order`);
@@ -131,48 +140,21 @@ class OrderRepository implements OrderRepositoryDomain {
 
     async getNextOrderNumber(count: number): Promise<number> {
         try {
-            const lastNumber = await this.dynamoDBAdapter.atomicIncrement(
+            return await this.databaseAdapter.atomicIncrement(
                 this.tableName,
                 { id: 'ORDER_COUNTER' },
                 'counter',
                 count,
             );
-            return lastNumber;
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error getting next order number`, error);
             throw new Error(`❌ ${this.constructor.name}: Error getting next order number`);
         }
     }
 
-    private buildFilterExpression(params?: GetOrdersRequest): {
-        expressionAttributeValues: Record<string, unknown>;
-        expressionAttributeNames?: Record<string, string>;
-        filterExpression?: string;
-    } {
-        const expressionAttributeValues: Record<string, unknown> = {
-            ':entityType': OrderRepository.ENTITY_TYPE,
-        };
-
-        if (!params?.status) {
-            return { expressionAttributeValues };
-        }
-
-        const statuses = String(params.status)
-            .split(',')
-            .map((s: string) => s.trim().toLowerCase());
-
-        const placeholders: string[] = [];
-        statuses.forEach((status, index) => {
-            const key = `:status${index}`;
-            expressionAttributeValues[key] = status;
-            placeholders.push(key);
-        });
-
-        return {
-            expressionAttributeValues,
-            expressionAttributeNames: { '#status': 'status' },
-            filterExpression: `#status IN (${placeholders.join(', ')})`,
-        };
+    private parseStatuses(status?: string): string[] {
+        if (!status) return [];
+        return String(status).split(',').map(s => s.trim().toLowerCase());
     }
 }
 

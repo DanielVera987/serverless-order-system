@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "../../../shared/infrastructure/di";
 import TypesShared from "../../../shared/SharedTypes";
-import { DynamoDBAdapter } from "../../../shared/domain/database/DynamoDBAdapter";
+import { DatabaseAdapter } from "../../../shared/domain/database/DatabaseAdapter";
 import PurchaseHistoryRepositoryDomain from "../../domain/repository/PurchaseHistoryRepository";
 import PurchaseHistory from "../../domain/entity/PurchaseHistory";
 import GetPurchaseHistoryRequest from "../../domain/ports/GetPurchaseHistoryRequest";
@@ -16,7 +16,7 @@ export default class PurchaseHistoryRepository implements PurchaseHistoryReposit
     private static readonly ENTITY_TYPE = 'ORDER';
 
     constructor(
-        @Inject(TypesShared.DynamoDBAdapter) private readonly dynamoDBAdapter: DynamoDBAdapter
+        @Inject(TypesShared.DatabaseAdapter) private readonly databaseAdapter: DatabaseAdapter
     ) {}
 
     async create(purchaseHistories: PurchaseHistory[]): Promise<PurchaseHistory[]> {
@@ -31,7 +31,7 @@ export default class PurchaseHistoryRepository implements PurchaseHistoryReposit
                 createdAt: purchaseHistory.createdAt,
             }));
 
-            return await this.dynamoDBAdapter.createBulk(this.tableName, items);
+            return await this.databaseAdapter.insertBatch(this.tableName, items);
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error creating purchase history`, error);
             throw new Error(`❌ ${this.constructor.name}: Error creating purchase history`);
@@ -42,14 +42,15 @@ export default class PurchaseHistoryRepository implements PurchaseHistoryReposit
         try {
             const limit = Math.min(params?.limit ?? PurchaseHistoryRepository.DEFAULT_LIMIT, PurchaseHistoryRepository.MAX_LIMIT);
 
-            return await this.dynamoDBAdapter.queryPage<PurchaseHistory>(this.tableName, {
-                indexName: PurchaseHistoryRepository.GSI_NAME,
-                keyConditionExpression: 'entityType = :entityType',
-                limit,
-                nextToken: params?.nextToken ?? undefined,
-                expressionAttributeValues: {
-                    ':entityType': PurchaseHistoryRepository.ENTITY_TYPE,
+            return await this.databaseAdapter.findPage<PurchaseHistory>(this.tableName, {
+                index: {
+                    name: PurchaseHistoryRepository.GSI_NAME,
+                    partitionKey: 'entityType',
+                    partitionValue: PurchaseHistoryRepository.ENTITY_TYPE,
+                    sortAscending: false,
                 },
+                limit,
+                cursor: params?.nextToken ?? null,
             });
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error getting all purchase history`, error);
@@ -59,11 +60,11 @@ export default class PurchaseHistoryRepository implements PurchaseHistoryReposit
 
     async count(_params?: GetPurchaseHistoryRequest): Promise<number> {
         try {
-            return await this.dynamoDBAdapter.count(this.tableName, {
-                indexName: PurchaseHistoryRepository.GSI_NAME,
-                keyConditionExpression: 'entityType = :entityType',
-                expressionAttributeValues: {
-                    ':entityType': PurchaseHistoryRepository.ENTITY_TYPE,
+            return await this.databaseAdapter.count(this.tableName, {
+                index: {
+                    name: PurchaseHistoryRepository.GSI_NAME,
+                    partitionKey: 'entityType',
+                    partitionValue: PurchaseHistoryRepository.ENTITY_TYPE,
                 },
             });
         } catch (error) {

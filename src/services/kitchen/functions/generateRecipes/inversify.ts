@@ -5,7 +5,7 @@ import { SqsHandler } from '../../../../context/shared/infrastructure/controller
 import { UseCase } from '../../../../context/shared/domain/UseCase';
 import GenerateRecipieUseCase from '../../../../context/kitchen/application/create/GenerateRecipieUseCase';
 import { SQSMessageRequest } from '../../../../context/kitchen/domain/ports/SQSRequest';
-import { DynamoDBAdapter as DynamoDBAdapterDomain } from '../../../../context/shared/domain/database/DynamoDBAdapter';
+import { DatabaseAdapter } from '../../../../context/shared/domain/database/DatabaseAdapter';
 import { DynamoDBAdapter } from '../../../../context/shared/infrastructure/database/DynamoDBAdapter';
 import OrderRepository from '../../../../context/kitchen/infrastructure/repository/OrderRepository';
 import OrderRepositoryDomain from '../../../../context/kitchen/domain/repository/OrderRepository';
@@ -24,7 +24,7 @@ container.bind<UseCase<SQSMessageRequest, unknown>>(types.GenerateRecipieUseCase
 container.bind<OrderRepositoryDomain>(types.OrderRepository).to(OrderRepository);
 container.bind<RecipeRepositoryDomain>(types.RecipeRepository).to(RecipeRepository);
 // Shared
-container.bind<DynamoDBAdapterDomain>(TypesShared.DynamoDBAdapter).to(DynamoDBAdapter);
+container.bind<DatabaseAdapter>(TypesShared.DatabaseAdapter).to(DynamoDBAdapter);
 // Notification
 container.bind<NotificationPublisher>(TypesShared.NotificationPublisher).to(SNSNotificationPublisher);
 

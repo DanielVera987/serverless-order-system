@@ -1,4 +1,4 @@
-import { DynamoDBAdapter } from '../../../shared/domain/database/DynamoDBAdapter';
+import { DatabaseAdapter } from '../../../shared/domain/database/DatabaseAdapter';
 import { Injectable, Inject } from '../../../shared/infrastructure/di';
 import TypesShared from '../../../shared/SharedTypes';
 import IngredientRepositoryDomain from '../../domain/repository/IngredientRepository';
@@ -9,12 +9,12 @@ export default class IngredientRepository implements IngredientRepositoryDomain 
     private readonly tableName = process.env.INGREDIENTS_TABLE ?? 'ingredients';
 
     constructor(
-        @Inject(TypesShared.DynamoDBAdapter) private readonly dynamoDBAdapter: DynamoDBAdapter
+        @Inject(TypesShared.DatabaseAdapter) private readonly databaseAdapter: DatabaseAdapter
     ) {}
 
     async getAll(): Promise<Ingredient[]> {
         try {
-            return await this.dynamoDBAdapter.scan<Ingredient>(this.tableName, { consistentRead: true });
+            return await this.databaseAdapter.findAll<Ingredient>(this.tableName, { consistentRead: true });
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error getting all ingredients`, error);
             throw new Error(`❌ ${this.constructor.name}: Error getting all ingredients`);
@@ -31,7 +31,7 @@ export default class IngredientRepository implements IngredientRepositoryDomain 
                 updatedAt: ingredient.updatedAt,
             };
 
-            return await this.dynamoDBAdapter.update(this.tableName, item);
+            return await this.databaseAdapter.save(this.tableName, item);
         } catch (error) {
             console.error(`❌ ${this.constructor.name}: Error updating ingredient`, error);
             throw new Error(`❌ ${this.constructor.name}: Error updating ingredient`);
@@ -39,7 +39,7 @@ export default class IngredientRepository implements IngredientRepositoryDomain 
     }
 
     async updateStockAtomic(id: string, quantityToDeduct: number): Promise<boolean> {
-        return this.dynamoDBAdapter.updateStockAtomic(
+        return this.databaseAdapter.atomicDecrement(
             this.tableName,
             { id },
             'quantity',
