@@ -1,6 +1,7 @@
 import Recipe from "../../../../../src/context/kitchen/domain/entity/Recipe";
 import InMemoryRecipeRepository from "../../infrastructure/repository/InMemoryRecipeRepository";
 import GetRecipesUseCase from "../../../../../src/context/kitchen/application/query/GetRecipesUseCase";
+import { QueryError } from "../../../../../src/context/shared/domain/errors/DomainError";
 
 describe('GetRecipesUseCase', () => {
   describe('execute', () => {
@@ -29,16 +30,13 @@ describe('GetRecipesUseCase', () => {
       // Assert
       expect(result).toEqual([]);
     });
-    it('should return error if the repository fails', async () => {
+    it('should throw if the repository fails', async () => {
       // Arrange
       const repo = new InMemoryRecipeRepository().simulateFailure();
       const useCase = new GetRecipesUseCase(repo);
 
-      // Act 
-      const result = await useCase.execute();
-
-      // Assert
-      expect(result).toEqual([]);
+      // Act & Assert
+      await expect(useCase.execute()).rejects.toThrow(QueryError);
     });
   });
 });

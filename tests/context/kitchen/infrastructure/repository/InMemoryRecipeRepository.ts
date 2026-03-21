@@ -15,6 +15,7 @@ export default class InMemoryRecipeRepository implements RecipeRepository {
   }
 
   async getAll(): Promise<Recipe[]> {
+    if (this.forcedError) throw this.forcedError;
     return this.recipes;
   }
 }
