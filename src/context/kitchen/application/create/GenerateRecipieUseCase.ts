@@ -31,7 +31,7 @@ export default class GenerateRecipieUseCase implements UseCase<SQSMessageRequest
   ) {}
 
   async execute(request: SQSMessageRequest): Promise<OrderWithRecipe[]> {
-    Logger.init(`GenerateRecipieUseCase execute request: ${request}`);
+    Logger.init(`${this.constructor.name} execute request: ${request}`);
   
     const batchId = Date.now();
     const recipes = await this.recipeRepository.getAll();
@@ -61,7 +61,7 @@ export default class GenerateRecipieUseCase implements UseCase<SQSMessageRequest
       }
     );
   
-    Logger.log(`GenerateRecipieUseCase assignments count: ${assignments.length}`);
+    Logger.log(`${this.constructor.name} assignments count: ${assignments.length}`);
     const chunks = this.chunkAssignmentsForSNS(assignments);
 
     for (let index = 0; index < chunks.length; index++) {

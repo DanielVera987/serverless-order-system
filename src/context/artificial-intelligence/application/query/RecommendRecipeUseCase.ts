@@ -33,7 +33,7 @@ export default class RecommendRecipeUseCase implements UseCase<string, string> {
 
     const responseData = JSON.parse(response);
 
-    console.log('🚀 RecommendRecipeUseCase response', responseData);
+    Logger.log(`${this.constructor.name}: Response`, responseData);
 
     await this.saveRecipes(responseData.recipes);
 
@@ -83,7 +83,7 @@ export default class RecommendRecipeUseCase implements UseCase<string, string> {
         });
       }
 
-      console.log('🔵 RecommendRecipeUseCase: recipesToSave', recipesToSave);
+      Logger.log(`${this.constructor.name}: Saving recipes`, recipesToSave);
 
       await this.recipeRepository.createBulk(recipesToSave);
     } catch (error) {

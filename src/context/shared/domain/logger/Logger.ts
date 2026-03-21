@@ -7,8 +7,8 @@ export default class Logger {
         console.log(`🚀 ${message}`);
     }
 
-    static log(message: string) {
-        console.log(`🔵 ${message}`);
+    static log(message: string, error?: unknown) {
+        console.log(`🔵 ${message}`, error ?? '');
     }
 
     static error(message: string, error?: unknown) {
