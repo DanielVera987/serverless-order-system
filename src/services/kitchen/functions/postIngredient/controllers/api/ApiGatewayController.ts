@@ -6,7 +6,7 @@ import { UseCase } from '../../../../../../context/shared/domain/UseCase';
 import types from '../../../../../../context/kitchen/Types';
 import Ingredient from '../../../../../../context/kitchen/domain/entity/Ingredient';
 import Logger from '../../../../../../context/shared/domain/logger/Logger';
-import HttpErrorResponse from '../../../../../../context/shared/infrastructure/http/httpErrorResponse';
+import HttpErrorResponse from '../../../../../../context/shared/infrastructure/http/HttpErrorResponse';
 
 @Injectable()
 export class ApiGatewayController implements ApiGatewayHandler {

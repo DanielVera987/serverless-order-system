@@ -7,7 +7,7 @@ export const SNSDLQAlarm = {
         Subscription: [
             {
                 Protocol: 'email',
-                Endpoint: 'danielveraangulo703@gmail.com',
+                Endpoint: Config.DLQ_ALARM_EMAIL,
             },
         ],
     },

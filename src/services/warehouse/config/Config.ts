@@ -19,4 +19,5 @@ export default Object.freeze({
     SQS_INVENTORY_READY_DLQ: '${self:service}-${self:provider.stage}-inventory-ready-dlq.fifo',
     SQS_INVENTORY_SHORTAGE_DLQ: '${self:service}-${self:provider.stage}-inventory-shortage-dlq.fifo',
     TABLE_PURCHASE_HISTORY: '${self:service}-${self:provider.stage}-purchase-history',
+    DLQ_ALARM_EMAIL: process.env.DLQ_ALARM_EMAIL ?? '',
 });

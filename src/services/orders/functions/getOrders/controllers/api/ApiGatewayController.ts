@@ -7,7 +7,7 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { Injectable, Inject } from '../../../../../../context/shared/infrastructure/di';
 import { ApiGatewayHandler } from '../../../../../../context/shared/infrastructure/controller/ControllerBase';
 import Logger from '../../../../../../context/shared/domain/logger/Logger';
-import HttpErrorResponse from '../../../../../../context/shared/infrastructure/http/httpErrorResponse';
+import HttpErrorResponse from '../../../../../../context/shared/infrastructure/http/HttpErrorResponse';
 
 @Injectable()
 export class ApiGatewayController implements ApiGatewayHandler {

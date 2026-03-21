@@ -8,4 +8,5 @@ export default Object.freeze({
     SNS_RECIPE_CREATED_TOPIC: '${self:service}-${self:provider.stage}-recipe-created.fifo',
     SQS_RECIPE_PROCESS_QUEUE: '${self:service}-${self:provider.stage}-recipe-process.fifo',
     SQS_RECIPE_PROCESS_DLQ: '${self:service}-${self:provider.stage}-recipe-process-dlq.fifo',
+    DLQ_ALARM_EMAIL: process.env.DLQ_ALARM_EMAIL ?? '',
 });

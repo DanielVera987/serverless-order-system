@@ -7,7 +7,7 @@ import { PaginatedResult } from "../../../../../../context/shared/domain/databas
 import PurchaseHistory from "../../../../../../context/warehouse/domain/entity/PurchaseHistory";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import Logger from '../../../../../../context/shared/domain/logger/Logger';
-import HttpErrorResponse from '../../../../../../context/shared/infrastructure/http/httpErrorResponse';
+import HttpErrorResponse from '../../../../../../context/shared/infrastructure/http/HttpErrorResponse';
 
 @Injectable()
 export class ApiGatewayController implements ApiGatewayHandler {

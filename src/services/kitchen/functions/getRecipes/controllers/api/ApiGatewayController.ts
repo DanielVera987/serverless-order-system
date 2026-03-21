@@ -5,7 +5,7 @@ import { UseCase } from '../../../../../../context/shared/domain/UseCase';
 import Recipe from '../../../../../../context/kitchen/domain/entity/Recipe';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import Logger from '../../../../../../context/shared/domain/logger/Logger';
-import HttpErrorResponse from '../../../../../../context/shared/infrastructure/http/httpErrorResponse';
+import HttpErrorResponse from '../../../../../../context/shared/infrastructure/http/HttpErrorResponse';
 
 @Injectable()
 export default class ApiGatewayController implements ApiGatewayHandler {

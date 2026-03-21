@@ -9,4 +9,5 @@ export default Object.freeze({
     SNS_ORDERS_CREATED_TOPIC: '${self:service}-${self:provider.stage}-orders-created.fifo',
     SQS_ORDERS_PROCESS_QUEUE: '${self:service}-${self:provider.stage}-orders-process.fifo',
     SQS_ORDERS_PROCESS_DLQ: '${self:service}-${self:provider.stage}-orders-process-dlq.fifo',
+    DLQ_ALARM_EMAIL: process.env.DLQ_ALARM_EMAIL ?? '',
 });
