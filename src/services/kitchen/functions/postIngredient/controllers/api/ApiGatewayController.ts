@@ -15,14 +15,8 @@ export class ApiGatewayController implements ApiGatewayHandler {
   ) {}
 
   async handle(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-    const body: IngredientRequest = JSON.parse(event.body || '{}');
-
-    const validationError = this.validateBody(body);
-    if (validationError) {
-      return { statusCode: 400, body: JSON.stringify({ error: validationError }) };
-    }
-
     try {
+      const body: IngredientRequest = JSON.parse(event.body || '{}');
       const response = await this.createIngredientUseCase.execute(body);
       return {
         statusCode: 200,
@@ -36,13 +30,5 @@ export class ApiGatewayController implements ApiGatewayHandler {
       Logger.error(`${this.constructor.name}: Error creating ingredient`, error);
       return HttpErrorResponse(error);
     }
-  }
-
-  private validateBody(body: IngredientRequest): string | null {
-    if (!body.name) return 'name is required';
-    if (typeof body.name !== 'string') return 'name must be a string';
-    if (typeof body.quantity !== 'number') return 'quantity must be a number';
-    if (body.quantity < 0) return 'quantity must be greater than 0';
-    return null;
   }
 }

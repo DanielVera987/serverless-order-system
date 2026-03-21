@@ -15,14 +15,8 @@ export class ApiGatewayController implements ApiGatewayHandler {
   ) {}
 
   async handle(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-    const body: Request = JSON.parse(event.body || '{}');
-
-    const validationError = this.validateBody(body);
-    if (validationError) {
-      return { statusCode: 400, body: JSON.stringify({ error: validationError }) };
-    }
-
     try {
+      const body: Request = JSON.parse(event.body || '{}');
       const response = await this.createOrderUseCase.execute(body);
       return {
         statusCode: 200,
@@ -36,17 +30,5 @@ export class ApiGatewayController implements ApiGatewayHandler {
       Logger.error(`${this.constructor.name}: Error creating orders`, error);
       return HttpErrorResponse(error);
     }
-  }
-
-  private validateBody(body: Request): string | null {
-    if (!body.numberOrders) {
-      return 'numberOrders is required';
-    }
-
-    if (typeof body.numberOrders !== 'number') {
-      return 'numberOrders must be a number';
-    }
-
-    return null;
   }
 }
