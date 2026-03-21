@@ -1,0 +1,45 @@
+services:
+  localstack:
+    image: localstack/localstack:latest
+    container_name: restaurant-localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=dynamodb,sns,sqs
+      - DEFAULT_REGION=us-east-1
+      - AWS_DEFAULT_REGION=us-east-1
+    healthcheck:
+      test: ["CMD-SHELL", "awslocal dynamodb list-tables > /dev/null 2>&1 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  dynamodb-admin:
+    image: aaronshaf/dynamodb-admin:latest
+    container_name: restaurant-dynamodb-admin
+    ports:
+      - "8001:8001"
+    environment:
+      - DYNAMO_ENDPOINT=http://localstack:4566
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=local
+      - AWS_SECRET_ACCESS_KEY=local
+    depends_on:
+      localstack:
+        condition: service_healthy
+
+  init:
+    image: amazon/aws-cli:latest
+    container_name: restaurant-init
+    depends_on:
+      localstack:
+        condition: service_healthy
+    environment:
+      - AWS_ACCESS_KEY_ID=local
+      - AWS_SECRET_ACCESS_KEY=local
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - ./scripts:/scripts
+    entrypoint: ["/bin/bash", "/scripts/init-local.sh"]
+    restart: on-failure
