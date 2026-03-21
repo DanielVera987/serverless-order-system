@@ -20,6 +20,9 @@ importers:
       '@aws-sdk/lib-dynamodb':
         specifier: ^3.1008.0
         version: 3.1008.0(@aws-sdk/client-dynamodb@3.1008.0)
+      '@middy/core':
+        specifier: ^6.4.5
+        version: 6.4.5
       axios:
         specifier: ^1.13.6
         version: 1.13.6
@@ -932,6 +935,10 @@ packages:
 
   '@kwsites/promise-deferred@1.1.1':
     resolution: {integrity: sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==}
+
+  '@middy/core@6.4.5':
+    resolution: {integrity: sha512-qRGCslDHjMr08fywcfVbWR9qpx16vGD481i9GpX3r5efi8Arjp/44JTjfeJkJJxvIb/8/+E9MLvU86+3oe1oJQ==}
+    engines: {node: '>=20'}
 
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
@@ -6002,6 +6009,8 @@ snapshots:
       - supports-color
 
   '@kwsites/promise-deferred@1.1.1': {}
+
+  '@middy/core@6.4.5': {}
 
   '@napi-rs/wasm-runtime@0.2.12':
     dependencies:
