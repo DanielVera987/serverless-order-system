@@ -40,9 +40,9 @@
     "esbuild": "^0.21.0",
     "husky": "^9.1.7",
     "jest": "^30.3.0",
-    "serverless": "^3.39.0",
+    "serverless": "^4.42.0",
     "serverless-esbuild": "^1.52.0",
-    "serverless-offline": "^13.9.0",
+    "serverless-offline": "^14.8.2",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.0"
